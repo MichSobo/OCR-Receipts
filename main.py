@@ -138,6 +138,18 @@ def recognize_image(img, write_content=True, path=None):
     return text
 
 
+def get_content(path):
+    """Get image text content."""
+    raw_img = get_image(path)
+    resized_img = resize_image(raw_img)
+    edged_img = prepare_image(resized_img)
+
+    contour = get_contour(resized_img, edged_img)
+    receipt = transform_image(raw_img, contour)
+
+    return recognize_image(receipt)
+
+
 # Set paths
 raw_img_folder = Path('images/receipts')
 proc_img_folder = Path('images/receipts_processed')
@@ -152,13 +164,7 @@ try:
 except FileExistsError:
     print("Output directory already exists. All content will be overwritten.")
 
-raw_img = get_image(img_filepath)
-resized_img = resize_image(raw_img)
-edged_img = prepare_image(resized_img)
-
-contour = get_contour(resized_img, edged_img)
-receipt = transform_image(raw_img, contour)
-text = recognize_image(receipt)
+text = get_content(img_filepath)
 
 # Define a regex pattern for price
 price_regex = r'\d+\.\d+'
