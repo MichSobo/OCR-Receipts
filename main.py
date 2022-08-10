@@ -141,12 +141,11 @@ def recognize_image(img, write_content=True, path=None):
 # Set paths
 raw_img_folder = Path('images/receipts')
 proc_img_folder = Path('images/receipts_processed')
+img_filename = Path('test1.jpg')
+img_filepath = raw_img_folder / img_filename
 
 # Create a directory to store processed images
 os.makedirs(proc_img_folder, exist_ok=True)
-
-img_filename = Path('test1.jpg')
-img_filepath = raw_img_folder / img_filename
 
 try:
     os.mkdir(proc_img_folder / img_filename.stem)
