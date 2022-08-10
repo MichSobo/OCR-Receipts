@@ -47,6 +47,10 @@ def prepare_image(img):
     blurred = cv.GaussianBlur(grayed, (5, 5,), 0)  # blur using Gaussian kernel
     edged = cv.Canny(blurred, 75, 200)  # apply edge detection
 
+    if DEBUG_MODE:
+        cv.imshow('Edged', edged)
+        cv.waitKey(0)
+
     return edged
 
 
@@ -154,7 +158,7 @@ def get_content(path):
 # Set paths
 raw_img_folder = Path('images/receipts')
 proc_img_folder = Path('images/receipts_processed')
-img_filename = Path('test1.jpg')
+img_filename = Path('receipt.jpg')
 img_filepath = raw_img_folder / img_filename
 
 # Create a directory to store processed images
