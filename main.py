@@ -118,7 +118,8 @@ def transform_image(img, contour,
     return transformed_img
 
 
-def recognize_image(img, write_content=True, path=None):
+def recognize_image(img,
+                    write_content=DO_WRITE_PROCESSED_RECEIPT_TEXT, path=None):
     """Execute OCR and return recognized content."""
     text = pytesseract.image_to_string(
         cv.cvtColor(img, cv.COLOR_BGR2RGB),
