@@ -134,6 +134,8 @@ def recognize_image(img, write_content=True, path=None):
         with open(path, 'w') as f:
             f.write(text)
 
+        print(f'Recognized image content was written to the file "{path}"')
+
     return text
 
 
