@@ -89,7 +89,7 @@ def get_contour(img_ori, img_edged,
     if save_outlined:
         if path is None:
             # Set default path
-            path = proc_img_folder / test_img_filepath.stem / 'outline.jpg'
+            path = proc_img_folder / img_filepath.stem / 'outline.jpg'
 
         cv.imwrite(str(path), outline)
         print(f'Image with detected outline was saved to the file "{path}"')
@@ -109,7 +109,7 @@ def transform_image(img, contour,
     if save_transformed:
         if path is None:
             # Set default path
-            path = proc_img_folder / test_img_filepath.stem / 'transform.jpg'
+            path = proc_img_folder / img_filepath.stem / 'transform.jpg'
 
         # Save the image to file
         cv.imwrite(str(path), transformed_img)
@@ -128,7 +128,7 @@ def recognize_image(img, write_content=True, path=None):
     if write_content:
         if path is None:
             # Set default path
-            path = Path('results') / (test_img_filepath.stem + '.txt')
+            path = Path('results') / (img_filepath.stem + '.txt')
 
         # Save recognized characters to a text file
         with open(path, 'w') as f:
@@ -146,15 +146,15 @@ proc_img_folder = Path('images/receipts_processed')
 # Create a directory to store processed images
 os.makedirs(proc_img_folder, exist_ok=True)
 
-test_img_filename = Path('test1.jpg')
-test_img_filepath = raw_img_folder / test_img_filename
+img_filename = Path('test1.jpg')
+img_filepath = raw_img_folder / img_filename
 
 try:
-    os.mkdir(proc_img_folder / test_img_filename.stem)
+    os.mkdir(proc_img_folder / img_filename.stem)
 except FileExistsError:
     print("Output directory already exists. All content will be overwritten.")
 
-raw_img = get_image(test_img_filepath)
+raw_img = get_image(img_filepath)
 resized_img = resize_image(raw_img)
 edged_img = prepare_image(resized_img)
 
