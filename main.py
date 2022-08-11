@@ -43,12 +43,11 @@ def resize_image(img):
     return img_resized
 
 
-def prepare_image(img):
-    """Prepare an image for further processing."""
-    # Adjust image colors
-    grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)  # convert to grayscale
+def adjust_image(img):
+    """Adjust image color to enhance contour detection."""
+    grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)   # convert to grayscale
     blurred = cv.GaussianBlur(grayed, (5, 5,), 0)  # blur using Gaussian kernel
-    edged = cv.Canny(blurred, 75, 200)  # apply edge detection
+    edged = cv.Canny(blurred, 75, 200)             # apply edge detection
 
     if DEBUG_MODE:
         cv.imshow('Edged', edged)
@@ -125,6 +124,16 @@ def transform_image(img, contour,
     return transformed_img
 
 
+def prepare_image(img):
+    """Prepare image for further processing."""
+    resized = resize_image(img)
+    edged = adjust_image(resized)
+
+    contour = get_contour(resized, edged)
+
+    return transform_image(img, contour)
+
+
 def recognize_image(img,
                     write_content=DO_WRITE_PROCESSED_RECEIPT_TEXT, path=None):
     """Execute OCR and return recognized content."""
@@ -146,14 +155,11 @@ def recognize_image(img,
     return text
 
 
-def get_content(path):
+def get_content(path, adjust=DO_ADJUST_IMAGE):
     """Get image text content."""
     raw_img = get_image(path)
-    resized_img = resize_image(raw_img)
-    edged_img = prepare_image(resized_img)
 
-    contour = get_contour(resized_img, edged_img)
-    receipt = transform_image(raw_img, contour)
+    receipt = prepare_image(raw_img) if adjust else raw_img
 
     return recognize_image(receipt)
 
