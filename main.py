@@ -24,6 +24,13 @@ from imutils.perspective import four_point_transform
 
 from setup import *
 
+# Set input file path
+img_filename = 'receipt.jpg'
+img_filepath = Path('images/receipts') / img_filename
+
+# Create a directory to store processed images
+proc_img_folder = Path('images/receipts_processed') / Path(img_filename).stem
+
 
 def get_image(path):
     """Return an image from path."""
@@ -57,7 +64,8 @@ def adjust_image(img):
 
 
 def get_contour(img_ori, img_edged,
-                save_outlined=DO_SAVE_CONTOUR_IMAGE, path=None):
+                save_outlined=DO_SAVE_CONTOUR_IMAGE,
+                path=proc_img_folder / 'outlined.jpg'):
     """Find contours in image's edge map."""
     contours = cv.findContours(
         img_edged, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
@@ -93,10 +101,6 @@ def get_contour(img_ori, img_edged,
         cv.waitKey(0)
 
     if save_outlined:
-        if path is None:
-            # Set default path
-            path = proc_img_folder / 'outline.jpg'
-
         cv.imwrite(str(path), outline)
         print(f'Image with detected outline was saved to the file "{path}"')
 
@@ -104,7 +108,8 @@ def get_contour(img_ori, img_edged,
 
 
 def transform_image(img, contour,
-                    save_transformed=DO_SAVE_TRANSFORMED_IMAGE, path=None):
+                    save_transformed=DO_SAVE_TRANSFORMED_IMAGE,
+                    path=proc_img_folder / 'transformed.jpg'):
     """Apply a four-point perspective transform to the original image."""
     transformed_img = four_point_transform(img, contour.reshape(4, 2) * ratio)
 
@@ -113,11 +118,6 @@ def transform_image(img, contour,
         cv.waitKey(0)
 
     if save_transformed:
-        if path is None:
-            # Set default path
-            path = proc_img_folder / 'transform.jpg'
-
-        # Save the image to file
         cv.imwrite(str(path), transformed_img)
         print(f'Transformed image was saved to the file "{path}"')
 
@@ -180,12 +180,6 @@ def save_contours(img_ori, img_edged):
         cv.imwrite(str(path), outline)
 
 
-# Set input file path
-img_filename = 'receipt.jpg'
-img_filepath = Path('images/receipts') / img_filename
-
-# Create a directory to store processed images
-proc_img_folder = Path('images/receipts_processed') / Path(img_filename).stem
 if DO_SAVE_CONTOUR_IMAGE or DO_SAVE_TRANSFORMED_IMAGE:
     try:
         os.makedirs(proc_img_folder)
