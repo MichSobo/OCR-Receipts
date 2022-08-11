@@ -155,6 +155,22 @@ def get_content(path):
     return recognize_image(receipt)
 
 
+def save_contours(img_ori, img_edged):
+    contours = cv.findContours(
+        img_edged, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+    )
+    contours = imutils.grab_contours(contours)
+
+    # Sort contours according to their area size
+    contours = sorted(contours, key=cv.contourArea, reverse=True)
+    for i, c in enumerate(contours):
+        path = proc_img_folder / img_filepath.stem / (str(i) + '.jpg')
+
+        outline = img_ori.copy()
+        cv.drawContours(img_ori, [c], -1, (0, 255, 0), 2)
+        cv.imwrite(str(path), outline)
+
+
 # Set paths
 raw_img_folder = Path('images/receipts')
 proc_img_folder = Path('images/receipts_processed')
