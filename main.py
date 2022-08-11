@@ -27,7 +27,10 @@ from setup import *
 
 def get_image(path):
     """Return an image from path."""
-    return cv.imread(str(path))
+    img = cv.imread(str(path))
+    print(f'Image was read from file "{path}"')
+
+    return img
 
 
 def resize_image(img):
