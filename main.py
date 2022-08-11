@@ -93,7 +93,7 @@ def get_contour(img_ori, img_edged,
     if save_outlined:
         if path is None:
             # Set default path
-            path = proc_img_folder / img_filepath.stem / 'outline.jpg'
+            path = proc_img_folder / 'outline.jpg'
 
         cv.imwrite(str(path), outline)
         print(f'Image with detected outline was saved to the file "{path}"')
@@ -113,7 +113,7 @@ def transform_image(img, contour,
     if save_transformed:
         if path is None:
             # Set default path
-            path = proc_img_folder / img_filepath.stem / 'transform.jpg'
+            path = proc_img_folder / 'transform.jpg'
 
         # Save the image to file
         cv.imwrite(str(path), transformed_img)
@@ -164,26 +164,25 @@ def save_contours(img_ori, img_edged):
     # Sort contours according to their area size
     contours = sorted(contours, key=cv.contourArea, reverse=True)
     for i, c in enumerate(contours):
-        path = proc_img_folder / img_filepath.stem / (str(i) + '.jpg')
+        path = proc_img_folder / (str(i) + '.jpg')
 
         outline = img_ori.copy()
         cv.drawContours(img_ori, [c], -1, (0, 255, 0), 2)
         cv.imwrite(str(path), outline)
 
 
-# Set paths
-raw_img_folder = Path('images/receipts')
-proc_img_folder = Path('images/receipts_processed')
-img_filename = Path('receipt.jpg')
-img_filepath = raw_img_folder / img_filename
+# Set input file path
+img_filename = 'receipt.jpg'
+img_filepath = Path('images/receipts') / img_filename
 
 # Create a directory to store processed images
-os.makedirs(proc_img_folder, exist_ok=True)
-
-try:
-    os.mkdir(proc_img_folder / img_filename.stem)
-except FileExistsError:
-    print("Output directory already exists. All content will be overwritten.")
+proc_img_folder = Path('images/receipts_processed') / Path(img_filename).stem
+if DO_SAVE_CONTOUR_IMAGE or DO_SAVE_TRANSFORMED_IMAGE:
+    try:
+        os.makedirs(proc_img_folder)
+    except OSError:
+        print("Output directory already exists. "
+              "All content will be overwritten.")
 
 text = get_content(img_filepath)
 
