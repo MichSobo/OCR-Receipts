@@ -136,7 +136,7 @@ def recognize_image(img,
             path = Path('results') / (img_filepath.stem + '.txt')
 
         # Save recognized characters to a text file
-        with open(path, 'w') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             f.write(text)
         print(f'Recognized image content was written to the file "{path}"')
 
