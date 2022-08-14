@@ -15,6 +15,7 @@ default. However, this step can be skipped using an argument.
 """
 import os
 import re
+import shutil
 from pathlib import Path
 
 import cv2 as cv
@@ -163,13 +164,19 @@ def get_content(path, adjust=DO_ADJUST_IMAGE):
     return recognize_image(receipt)
 
 
+# Create folder for processed images
 if DO_SAVE_CONTOUR_IMAGE or DO_SAVE_TRANSFORMED_IMAGE:
-    try:
-        os.makedirs(proc_img_folder)
-    except OSError:
-        print("Output directory already exists. "
-              "All content will be overwritten.")
+    if os.path.isdir(proc_img_folder):
+        print(f'Directory "{proc_img_folder}" already exists. '
+              'All content will be overwritten.')
+        shutil.rmtree(proc_img_folder)
+    os.makedirs(proc_img_folder)
 
-os.makedirs(result_folder, exist_ok=True)
+# Create folder for extracted text
+if os.path.isdir(result_folder):
+    print(f'Directory "{result_folder}" already exists. '
+          'All content will be overwritten.')
+    shutil.rmtree(result_folder)
+os.makedirs(result_folder)
 
 text = get_content(img_filepath)
