@@ -172,20 +172,3 @@ if DO_SAVE_CONTOUR_IMAGE or DO_SAVE_TRANSFORMED_IMAGE:
               "All content will be overwritten.")
 
 text = get_content(img_filepath)
-
-# Define a regex pattern for price
-price_regex = r'\d+\.\d+'
-
-# Show the output of only the line items in the receipt
-print('=' * 10)
-
-for row in text.split('\n'):
-    # If receipt line consists of price pattern...
-    if re.search(price_regex, row):
-        # ...print it
-        print(row)
-
-items = [row for row in text.split('\n') if re.search(price_regex, row)]
-print(items)
-
-# TODO: Build testing utility for the OCR
