@@ -28,8 +28,11 @@ from setup import *
 img_filename = 'receipt.jpg'
 img_filepath = Path('images/receipts') / img_filename
 
-# Create a directory to store processed images
+# Set directory to store processed images
 proc_img_folder = Path('images/receipts_processed') / Path(img_filename).stem
+
+# Set directory to store extracted text
+result_folder = Path('results') / Path(img_filename).stem
 
 
 def get_image(path):
@@ -135,7 +138,8 @@ def prepare_image(img):
 
 
 def recognize_image(img,
-                    write_content=DO_WRITE_PROCESSED_RECEIPT_TEXT, path=None):
+                    write_content=DO_WRITE_PROCESSED_RECEIPT_TEXT,
+                    path=result_folder / 'raw.txt'):
     """Execute OCR and return recognized content."""
     text = pytesseract.image_to_string(
         cv.cvtColor(img, cv.COLOR_BGR2RGB),
@@ -143,11 +147,6 @@ def recognize_image(img,
     )
 
     if write_content:
-        if path is None:
-            # Set default path
-            path = Path('results') / (img_filepath.stem + '.txt')
-
-        # Save recognized characters to a text file
         with open(path, 'w', encoding='utf-8') as f:
             f.write(text)
         print(f'Recognized image content was written to the file "{path}"')
@@ -170,5 +169,7 @@ if DO_SAVE_CONTOUR_IMAGE or DO_SAVE_TRANSFORMED_IMAGE:
     except OSError:
         print("Output directory already exists. "
               "All content will be overwritten.")
+
+os.makedirs(result_folder, exist_ok=True)
 
 text = get_content(img_filepath)
