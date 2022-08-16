@@ -15,6 +15,7 @@ default. However, this step can be skipped using an argument.
 """
 import os
 import re
+import shutil
 from pathlib import Path
 
 import cv2 as cv
@@ -28,8 +29,11 @@ from setup import *
 img_filename = 'receipt.jpg'
 img_filepath = Path('images/receipts') / img_filename
 
-# Create a directory to store processed images
+# Set directory to store processed images
 proc_img_folder = Path('images/receipts_processed') / Path(img_filename).stem
+
+# Set directory to store extracted text
+result_folder = Path('results') / Path(img_filename).stem
 
 
 def get_image(path):
@@ -135,7 +139,8 @@ def prepare_image(img):
 
 
 def recognize_image(img,
-                    write_content=DO_WRITE_PROCESSED_RECEIPT_TEXT, path=None):
+                    write_content=DO_WRITE_PROCESSED_RECEIPT_TEXT,
+                    path=result_folder / 'raw.txt'):
     """Execute OCR and return recognized content."""
     text = pytesseract.image_to_string(
         cv.cvtColor(img, cv.COLOR_BGR2RGB),
@@ -143,11 +148,6 @@ def recognize_image(img,
     )
 
     if write_content:
-        if path is None:
-            # Set default path
-            path = Path('results') / (img_filepath.stem + '.txt')
-
-        # Save recognized characters to a text file
         with open(path, 'w', encoding='utf-8') as f:
             f.write(text)
         print(f'Recognized image content was written to the file "{path}"')
@@ -164,28 +164,19 @@ def get_content(path, adjust=DO_ADJUST_IMAGE):
     return recognize_image(receipt)
 
 
+# Create folder for processed images
 if DO_SAVE_CONTOUR_IMAGE or DO_SAVE_TRANSFORMED_IMAGE:
-    try:
-        os.makedirs(proc_img_folder)
-    except OSError:
-        print("Output directory already exists. "
-              "All content will be overwritten.")
+    if os.path.isdir(proc_img_folder):
+        print(f'Directory "{proc_img_folder}" already exists. '
+              'All content will be overwritten.')
+        shutil.rmtree(proc_img_folder)
+    os.makedirs(proc_img_folder)
+
+# Create folder for extracted text
+if os.path.isdir(result_folder):
+    print(f'Directory "{result_folder}" already exists. '
+          'All content will be overwritten.')
+    shutil.rmtree(result_folder)
+os.makedirs(result_folder)
 
 text = get_content(img_filepath)
-
-# Define a regex pattern for price
-price_regex = r'\d+\.\d+'
-
-# Show the output of only the line items in the receipt
-print('=' * 10)
-
-for row in text.split('\n'):
-    # If receipt line consists of price pattern...
-    if re.search(price_regex, row):
-        # ...print it
-        print(row)
-
-items = [row for row in text.split('\n') if re.search(price_regex, row)]
-print(items)
-
-# TODO: Build testing utility for the OCR
