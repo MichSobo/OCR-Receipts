@@ -26,7 +26,7 @@ from imutils.perspective import four_point_transform
 from setup import *
 
 # Set input file path
-img_filename = 'receipt.jpg'
+img_filename = 'Paragon_2022-08-11_081131_300dpi.jpg'
 img_filepath = Path('images/receipts') / img_filename
 
 # Set directory to store processed images
@@ -140,7 +140,7 @@ def prepare_image(img):
 
 def recognize_image(img,
                     write_content=DO_WRITE_PROCESSED_RECEIPT_TEXT,
-                    path=result_folder / 'raw.txt'):
+                    path=result_folder / 'content.txt'):
     """Execute OCR and return recognized content."""
     text = pytesseract.image_to_string(
         cv.cvtColor(img, cv.COLOR_BGR2RGB),
