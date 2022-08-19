@@ -16,18 +16,34 @@ content_filepath = Path('../results') / content_filename.stem / 'content.txt'
 out_folderpath = content_filepath.parent
 
 
-def get_shop(text):
-    """Extract shop name from receipt's raw content."""
+def get_shop(text, str_if_unrecognized='unknown'):
+    """Extract shop name from receipt's raw content.
+
+    Return shop name if it exists in receipt text by comparing defined shop
+    names with receipt text.
+
+    Args:
+        text(str): recognized receipt content
+        str_if_unrecognized(str): value to be returned if shop name is not found
+            in text (default 'unknown')
+
+    Return:
+        str: recognized shop name, str_if_unrecognized value otherwise
+
+    """
     SHOPS = {
         'Biedronka': ('biedronka',),
         'Rossmann': ('rossmann',),
         'Żabka': ('żabka', 'zabka'),
     }
+
     for row in text:
         for shop, names in SHOPS.items():
             for name in names:
                 if name in row.lower():
                     return shop
+
+    return str_if_unrecognized
 
 
 content = {}
