@@ -35,6 +35,7 @@ content = {}
 # Read text file
 with open(content_filepath, 'r', encoding='utf-8') as f:
     text = f.readlines()
+print(f'Text content was read from file "{content_filepath}"')
 
 # Extract shop name
 content['shop'] = get_shop(text)
@@ -84,12 +85,14 @@ products_filename = 'raw_products.txt'
 products_filepath = out_folderpath / products_filename
 with open(products_filepath, 'w', encoding='utf-8') as f:
     f.write('\n'.join(raw_products))
+print(f'Raw products were written to file "{products_filepath}"')
 
 # Write products to text file
 products_filename = 'products.txt'
 products_filepath = out_folderpath / products_filename
 with open(products_filepath, 'w') as f:
     f.write('\n'.join(products))
+print(f'Processed products were written to file "{products_filepath}"')
 
 # Extract total cost
 total_cost_regex = re.compile(r'SUMA\s+\w+\s+(\d+[,.]\d+)')
@@ -101,3 +104,4 @@ json_content_filename = 'content.json'
 json_content_filepath = out_folderpath / json_content_filename
 with open(json_content_filepath, 'w') as f:
     json.dump(content, f, indent=4)
+print(f'Processed content was written to file "{json_content_filepath}"')
