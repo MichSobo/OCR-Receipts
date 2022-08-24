@@ -117,12 +117,24 @@ def get_products(text, write_raw=True, write_processed=True):
     return products
 
 
-def get_total(text):
-    """Return total sum."""
+def get_total(text, value_if_not_recognized='unknown'):
+    """Return total shopping sum.
+
+    Arguments:
+        text (str): input string from which total cost will be extracted
+        value_if_not_recognized (str): value to be returned if shop name is not
+            found in the text (default 'unknown')
+
+    Returns:
+        str: recognized total sum, value_if_not_recognized otherwise
+    """
     total_cost_regex = re.compile(r'SUMA\s+\w+\s+(\d+[,.]\d+)')
     match = re.search(total_cost_regex, ''.join(list(text)))
 
-    return match.group(1)
+    if match:
+        return match.group(1)
+    else:
+        return value_if_not_recognized
 
 
 content = {}
