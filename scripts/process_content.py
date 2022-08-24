@@ -16,6 +16,15 @@ content_filepath = Path('../results') / content_filename.stem / 'content.txt'
 out_folderpath = content_filepath.parent
 
 
+def preprocess_text(text):
+    """Return pre-processed text to enhance data extraction."""
+    # Replace characters wrongly recognized as "1"
+    text = list(map(lambda x: x.replace('{', '1'), text))
+    text = list(map(lambda x: x.replace('(', '1'), text))
+
+    return text
+
+
 def get_shop(text, value_if_not_recognized='unknown'):
     """Extract shop name from receipt's raw content.
 
@@ -148,8 +157,7 @@ print(f'Text content was read from file "{content_filepath}"')
 content['shop'] = get_shop(text)
 
 # Replace common wrong characters
-text = list(map(lambda x: x.replace('{', '1'), text))
-text = list(map(lambda x: x.replace('(', '1'), text))
+text = preprocess_text(text)
 
 # Define lists for storing products
 content['products'] = get_products(text)
