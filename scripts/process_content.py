@@ -47,7 +47,29 @@ def get_shop(text, str_if_unrecognized='unknown'):
 
 
 def get_products(text, write_raw=True, write_processed=True):
-    """Return products."""
+    """Return products extracted from text.
+
+    Return a list of products that were recognized in the text. Products
+    recognition process is executed using regular expressions.
+
+    Each product is a dictionary with the following attributes:
+        - 'name' - product name,
+        - 'quantity' - number of pieces or product mass,
+        - 'price' - price of a single product,
+        - 'total_price' - quantity multiplied by price.
+
+    Optionally, matched text can be saved to text files to help debugging.
+
+    Arguments:
+        text (str): input string from which data will be extracted
+        write_raw (bool): write matched regex pattern to raw_products.txt
+            (default True)
+        write_processed (bool): write processed matched items to
+            processed_products.txt (default True)
+
+    Returns:
+        list: collection (list) of products (dictionaries)
+    """
     # Define regex for product data extraction
     product_regex = re.compile(r'''(
             (.+)            # product
