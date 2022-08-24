@@ -64,38 +64,39 @@ def get_products(text):
     products_str = []
     products = []
 
-    match = re.search(product_regex, text)
-    if match:
-        groups = match.groups()
+    for row in text:
+        match = re.search(product_regex, row)
+        if match:
+            groups = match.groups()
 
-        raw_products_str.append(groups[0])
+            raw_products_str.append(groups[0])
 
-        products_str.append(
-            " ".join([groups[1], groups[2], 'x' + groups[4], groups[5]])
-        )
+            products_str.append(
+                " ".join([groups[1], groups[2], 'x' + groups[4], groups[5]])
+            )
 
-        products.append({
-            'name': groups[1],
-            'quantity': groups[2],
-            'price': groups[4],
-            'total_price': groups[5]
-        })
+            products.append({
+                'name': groups[1],
+                'quantity': groups[2],
+                'price': groups[4],
+                'total_price': groups[5]
+            })
 
-        # Write raw products to text file
-        products_filename = 'raw_products.txt'
-        products_filepath = out_folderpath / products_filename
-        with open(products_filepath, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(raw_products))
-        print(f'Raw products were written to file "{products_filepath}"')
+    # Write raw products to text file
+    products_filename = 'raw_products.txt'
+    products_filepath = out_folderpath / products_filename
+    with open(products_filepath, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(raw_products_str))
+    print(f'Raw products were written to file "{products_filepath}"')
 
-        # Write products to text file
-        products_filename = 'products.txt'
-        products_filepath = out_folderpath / products_filename
-        with open(products_filepath, 'w') as f:
-            f.write('\n'.join(products))
-        print(f'Processed products were written to file "{products_filepath}"')
+    # Write processed products to text file
+    products_filename = 'products.txt'
+    products_filepath = out_folderpath / products_filename
+    with open(products_filepath, 'w') as f:
+        f.write('\n'.join(products_str))
+    print(f'Processed products were written to file "{products_filepath}"')
 
-        return products
+    return products
 
 
 def get_total(text):
