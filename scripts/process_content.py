@@ -46,7 +46,7 @@ def get_shop(text, str_if_unrecognized='unknown'):
     return str_if_unrecognized
 
 
-def get_products(text):
+def get_products(text, write_raw=True, write_processed=True):
     """Return products."""
     # Define regex for product data extraction
     product_regex = re.compile(r'''(
@@ -60,20 +60,14 @@ def get_products(text):
             (\d+,\s?\d{2})  # total sum for product
         )''', re.VERBOSE)
 
-    raw_products_str = []
-    products_str = []
     products = []
+    groups_list = []
 
     for row in text:
         match = re.search(product_regex, row)
         if match:
             groups = match.groups()
-
-            raw_products_str.append(groups[0])
-
-            products_str.append(
-                " ".join([groups[1], groups[2], 'x' + groups[4], groups[5]])
-            )
+            groups_list.append(groups)
 
             products.append({
                 'name': groups[1],
@@ -82,19 +76,22 @@ def get_products(text):
                 'total_price': groups[5]
             })
 
-    # Write raw products to text file
-    products_filename = 'raw_products.txt'
-    products_filepath = out_folderpath / products_filename
-    with open(products_filepath, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(raw_products_str))
-    print(f'Raw products were written to file "{products_filepath}"')
+    if write_raw:
+        raw_products_str = [groups[0] for groups in groups_list]
+        products_filename = 'raw_products.txt'
+        products_filepath = out_folderpath / products_filename
+        with open(products_filepath, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(raw_products_str))
+        print(f'Raw products were written to file "{products_filepath}"')
 
-    # Write processed products to text file
-    products_filename = 'products.txt'
-    products_filepath = out_folderpath / products_filename
-    with open(products_filepath, 'w') as f:
-        f.write('\n'.join(products_str))
-    print(f'Processed products were written to file "{products_filepath}"')
+    if write_processed:
+        products_str = [f'{groups[1]} {groups[2]} x{groups[4]} {groups[5]}'
+                        for groups in groups_list]
+        products_filename = 'processed_products.txt'
+        products_filepath = out_folderpath / products_filename
+        with open(products_filepath, 'w') as f:
+            f.write('\n'.join(products_str))
+        print(f'Processed products were written to file "{products_filepath}"')
 
     return products
 
