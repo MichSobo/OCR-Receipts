@@ -23,7 +23,7 @@ import imutils
 import pytesseract
 from imutils.perspective import four_point_transform
 
-from setup import *
+from config import *
 
 # Set input file path
 img_filename = 'Paragon_2022-08-11_081131_300dpi.jpg'
