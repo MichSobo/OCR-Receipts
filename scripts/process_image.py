@@ -4,6 +4,9 @@ import pytesseract
 from imutils.perspective import four_point_transform
 
 
+DEBUG_MODE = False
+
+
 def read_image(path):
     """Return an image object from path."""
     img = cv.imread(str(path))
@@ -22,7 +25,7 @@ def resize_image(img):
     return img_resized
 
 
-def adjust_image(img, debug=False):
+def adjust_image(img, debug=DEBUG_MODE):
     """Return image with adjusted color to enhance contour detection."""
     grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)   # convert to grayscale
     blurred = cv.GaussianBlur(grayed, (5, 5,), 0)  # blur using Gaussian kernel
@@ -37,7 +40,7 @@ def adjust_image(img, debug=False):
 
 def get_contour(img_ori,
                 img_edged,
-                debug=False,
+                debug=DEBUG_MODE,
                 save_outlined=False,
                 path=proc_img_folder / 'outlined.jpg'):
     """Return a list of contours found image's edge map."""
@@ -83,13 +86,13 @@ def get_contour(img_ori,
 
 def transform_image(img,
                     contour,
-                    debug=False,
+                    debug=DEBUG_MODE,
                     save_transformed=DO_SAVE_TRANSFORMED_IMAGE,
                     path=proc_img_folder / 'transformed.jpg'):
     """Apply a four-point perspective transform to the original image."""
     transformed_img = four_point_transform(img, contour.reshape(4, 2) * ratio)
 
-    if DEBUG_MODE:
+    if debug:
         cv.imshow('Receipt transform',
                   imutils.resize(transformed_img, width=500))
         cv.waitKey(0)
