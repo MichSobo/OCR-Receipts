@@ -106,9 +106,23 @@ def get_contour(img_ori,
 def transform_image(img,
                     contour,
                     debug=DEBUG_MODE,
-                    save_transformed=DO_SAVE_TRANSFORMED_IMAGE,
-                    path=proc_img_folder / 'transformed.jpg'):
-    """Apply a four-point perspective transform to the original image."""
+                    save_transformed=False,
+                    transformed_path=Path.cwd()/'transformed.jpg'):
+    """Return an image after four-point perspective transformation.
+
+    Args:
+        img (object): image handle
+        contour (list): contour definition
+        debug (bool): set to use debug mode and plot images during function
+            execution (default False)
+        save_transformed (bool): set to save transformed image (default False)
+        transformed_path (str): path of the file to which the transformed image
+        will be saved; if left blank, it will be saved in working directory as
+            'transformed.jpg'
+
+    Returns:
+        list: a list of contours
+    """
     transformed_img = four_point_transform(img, contour.reshape(4, 2) * ratio)
 
     if debug:
@@ -117,8 +131,8 @@ def transform_image(img,
         cv.waitKey(0)
 
     if save_transformed:
-        cv.imwrite(str(path), transformed_img)
-        print(f'Transformed image was saved to the file "{path}"')
+        cv.imwrite(str(transformed_path), transformed_img)
+        print(f'Transformed image was saved to the file "{transformed_path}"')
 
     return transformed_img
 
