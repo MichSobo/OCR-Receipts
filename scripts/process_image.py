@@ -178,8 +178,17 @@ def recognize_image(img,
     return text
 
 
-def get_content(path, adjust=DO_ADJUST_IMAGE):
-    """Get image text content."""
+def get_content(path, adjust=False):
+    """Read and process image. Return recognized text content.
+
+    Args:
+        path (str): path to image file
+        adjust (bool): set to perform image adjustment procedure (default False)
+
+    Returns:
+        list[str]: list of string elements, where each elements corresponds to
+            a single line of recognized content
+    """
     raw_img = read_image(path)
 
     receipt = prepare_image(raw_img) if adjust else raw_img
