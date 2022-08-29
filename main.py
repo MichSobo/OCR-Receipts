@@ -36,7 +36,7 @@ proc_img_folder = Path('images/receipts_processed') / Path(img_filename).stem
 result_folder = Path('results') / Path(img_filename).stem
 
 
-def get_image(path):
+def read_image(path):
     """Return an image from path."""
     img = cv.imread(str(path))
     print(f'Image was read from file "{path}"')
@@ -157,7 +157,7 @@ def recognize_image(img,
 
 def get_content(path, adjust=DO_ADJUST_IMAGE):
     """Get image text content."""
-    raw_img = get_image(path)
+    raw_img = read_image(path)
 
     receipt = prepare_image(raw_img) if adjust else raw_img
 
