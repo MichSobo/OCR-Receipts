@@ -149,17 +149,31 @@ def prepare_image(img):
 
 def recognize_image(img,
                     write_content=True,
-                    path=result_folder / 'content.txt'):
-    """Execute OCR and return recognized content."""
+                    content_path=Path.cwd()/'content.txt'):
+    """Execute OCR and return recognized content.
+
+    Args:
+        img (object): image handle
+        write_content (bool): set to write recognized content to a text file
+            default (True)
+        content_path (str): path of the file to which the recognized content
+        will be saved; if left blank, it will be saved in working directory as
+            'content.txt'
+
+    Returns:
+        list[str]: list of string elements, where each elements corresponds to
+            a single line of recognized content
+    """
+    # Execute OCR
     text = pytesseract.image_to_string(
         cv.cvtColor(img, cv.COLOR_BGR2RGB),
         config='--psm 4'
     )
 
     if write_content:
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(content_path, 'w', encoding='utf-8') as f:
             f.write(text)
-        print(f'Recognized image content was written to the file "{path}"')
+        print(f'Recognized image content was written to the file "{content_path}"')
 
     return text
 
