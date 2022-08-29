@@ -138,7 +138,7 @@ def transform_image(img,
 
 
 def prepare_image(img):
-    """Prepare image for further processing."""
+    """Return transformed image for further processing."""
     resized = resize_image(img)
     edged = adjust_image(resized)
 
