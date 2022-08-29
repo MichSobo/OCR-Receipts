@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import cv2 as cv
 import imutils
 import pytesseract
@@ -26,7 +29,7 @@ def resize_image(img):
 
 
 def adjust_image(img, debug=DEBUG_MODE):
-    """Return image with adjusted color to enhance contour detection."""
+    """Return an image with adjusted color to enhance contour detection."""
     grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)   # convert to grayscale
     blurred = cv.GaussianBlur(grayed, (5, 5,), 0)  # blur using Gaussian kernel
     edged = cv.Canny(blurred, 75, 200)             # apply edge detection
@@ -42,8 +45,24 @@ def get_contour(img_ori,
                 img_edged,
                 debug=DEBUG_MODE,
                 save_outlined=False,
-                path=proc_img_folder / 'outlined.jpg'):
-    """Return a list of contours found image's edge map."""
+                outlined_path=Path.cwd()/'outlined.jpg'):
+    """Return a list of contours found image's edge map.
+
+    Args:
+        img_ori (object): original image handle
+        img_edged (object): edged image handle
+        debug (bool): set to use debug mode and plot images during function
+            execution (default False)
+        save_outlined (bool): set to save the original image with detected
+            outline (default False)
+        outlined_path (str): path of the file to which the outlined image will
+            be saved; if left blank, it will be saved in working directory as
+            'outlined.jpg'
+
+    Returns:
+        list: a list of contours
+    """
+    # Find contours
     contours = cv.findContours(
         img_edged, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
     )
@@ -78,8 +97,8 @@ def get_contour(img_ori,
         cv.waitKey(0)
 
     if save_outlined:
-        cv.imwrite(str(path), outline)
-        print(f'Image with detected outline was saved to the file "{path}"')
+        cv.imwrite(str(outlined_path), outline)
+        print(f'Image with detected outline was saved to the file "{outlined_path}"')
 
     return contour
 
