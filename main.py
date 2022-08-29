@@ -18,11 +18,6 @@ import re
 import shutil
 from pathlib import Path
 
-import cv2 as cv
-import imutils
-import pytesseract
-from imutils.perspective import four_point_transform
-
 from config import *
 
 # Set input file path
