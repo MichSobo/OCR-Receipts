@@ -18,8 +18,6 @@ import re
 import shutil
 from pathlib import Path
 
-from config import *
-
 # Set input file path
 img_filename = 'Paragon_2022-08-11_081131_300dpi.jpg'
 img_filepath = Path('images/receipts') / img_filename
