@@ -1,0 +1,10 @@
+{
+  "image_filepath": "images/receipts/Paragon_2022-08-11_081131_300dpi.jpg",
+  "results_folderpath": "results",
+  "debug_mode": false,
+  "adjust_image": false,
+  "save_contoured_image": false,
+  "save_transformed_image": false,
+  "write_raw_content": true,
+  "write_processed_content": true
+}
