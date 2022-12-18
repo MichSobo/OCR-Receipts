@@ -1,3 +1,6 @@
+"""
+Code for image processing and retrieving content with use of OCR methods.
+"""
 import os
 from pathlib import Path
 
@@ -48,7 +51,7 @@ def get_contour(img_ori,
                 outlined_path=Path.cwd()/'outlined.jpg'):
     """Return a list of contours found image's edge map.
 
-    Args:
+    Arguments:
         img_ori (object): original image handle
         img_edged (object): edged image handle
         debug (bool): set to use debug mode and plot images during function
@@ -110,7 +113,7 @@ def transform_image(img,
                     transformed_path=Path.cwd()/'transformed.jpg'):
     """Return an image after four-point perspective transformation.
 
-    Args:
+    Arguments:
         img (object): image handle
         contour (list): contour definition
         debug (bool): set to use debug mode and plot images during function
@@ -152,7 +155,7 @@ def recognize_image(img,
                     content_path=Path.cwd()/'content.txt'):
     """Execute OCR and return recognized content.
 
-    Args:
+    Arguments:
         img (object): image handle
         write_content (bool): set to write recognized content to a text file
             default (True)
@@ -181,12 +184,12 @@ def recognize_image(img,
 def get_content(path, adjust=False):
     """Read and process image. Return recognized text content.
 
-    Args:
+    Arguments:
         path (str): path to image file
         adjust (bool): set to perform image adjustment procedure (default False)
 
     Returns:
-        list[str]: list of string elements, where each elements corresponds to
+        list[str]: list of string elements, where each element corresponds to
             a single line of recognized content
     """
     raw_img = read_image(path)
