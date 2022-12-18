@@ -23,10 +23,15 @@ def read_image(path):
 
 def resize_image(img):
     """Return a resized image maintaining its aspect ratio."""
+
+    def get_ratio(first, second):
+        """Return a ratio of two image sizes."""
+        return float(first.shape[1]) / float(second.shape[1])
+
     global ratio
 
     img_resized = imutils.resize(img, width=500)
-    ratio = img.shape[1] / float(img_resized.shape[1])
+    ratio = get_ratio(img, img_resized)
 
     return img_resized
 
