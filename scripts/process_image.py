@@ -34,11 +34,12 @@ def resize_image(img, save=False, filepath=None):
 
     Arguments:
         img (object): image object
-        save (bool): set whether the resized image should be saved (default False)
-        filepath (str): path to the output image file default (None)
+        save (bool): set whether the resized image should be saved
+            (default False)
+        filepath (str): path to the output image file (default None)
 
     Returns:
-        object: resized image representation
+        object: resized image
     """
 
     def get_ratio(first, second):
@@ -52,7 +53,6 @@ def resize_image(img, save=False, filepath=None):
     ratio = get_ratio(img, img_resized)
 
     if save:
-        # Save the resized image
         cv.imwrite(filepath, img_resized)
         print(f'Resized image was saved to the file "{filepath}"')
 
@@ -76,26 +76,24 @@ def adjust_image_color(img, debug=False, save=False, filepath=None):
     return img_edged
 
 
-def get_contour(img_ori,
+def get_contour(img,
                 img_edged,
                 debug=False,
-                save_outlined=False,
-                outlined_path=Path.cwd()/'outlined.jpg'):
-    """Return a list of contours found image's edge map.
+                save=False,
+                filepath=None):
+    """Return a list of contours found in image's edge map.
 
     Arguments:
-        img_ori (object): original image handle
-        img_edged (object): edged image handle
+        img (object): reference image
+        img_edged (object): edged image
         debug (bool): set to use debug mode and plot images during function
             execution (default False)
-        save_outlined (bool): set to save the original image with detected
-            outline (default False)
-        outlined_path (str): path of the file to which the outlined image will
-            be saved; if left blank, it will be saved in working directory as
-            'outlined.jpg'
+        save (bool): set whether the resized image should be saved
+            (default False)
+        filepath (str): path to the output image file (default None)
 
     Returns:
-        list: a list of contours
+        list: list of contours
     """
     # Find contours
     contours = cv.findContours(
@@ -124,16 +122,16 @@ def get_contour(img_ori,
         raise Exception('Could not find proper receipt contours. '
                         'Review the input image and try again.')
 
-    outline = img_ori.copy()
-    cv.drawContours(outline, [contour], -1, (0, 255, 0), 2)
+    img_outline = img.copy()
+    cv.drawContours(img_outline, [contour], -1, (0, 255, 0), 2)
 
     if debug:
-        cv.imshow('Receipt outline', outline)
+        cv.imshow('Receipt outline', img_outline)
         cv.waitKey(0)
 
-    if save_outlined:
-        cv.imwrite(str(outlined_path), outline)
-        print(f'Image with detected outline was saved to the file "{outlined_path}"')
+    if save:
+        cv.imwrite(str(filepath), img_outline)
+        print(f'Image with detected outline was saved to the file "{filepath}"')
 
     return contour
 
@@ -237,6 +235,7 @@ if __name__ == '__main__':
 
     save_resized = True
     save_adjusted = True
+    save_outlined = True
 
     # Set path to the raw image
     raw_img_filename = 'test1.jpg'
@@ -257,4 +256,12 @@ if __name__ == '__main__':
                                       save=save_adjusted,
                                       filepath=filepath)
 
-    print(raw_img)
+    # Get contours
+    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_outlined.jpg')
+    contour = get_contour(resized_img, adjusted_img,
+                          debug=debug_mode,
+                          save=save_outlined,
+                          filepath=filepath)
+
+
+    print('cos')
