@@ -4,20 +4,20 @@ Application for receipt recognition
 ## Process description
 
 Flowchart for the main execution scheme.
-
 ```mermaid
 flowchart TD
-    A[Start main.py] --> B{Args passed?}
+    A[Start main.py] --> B{{Args passed?}}
     B --yes--> C(Parse args)
-    C --> D{args correct?}
-    D --yes--> E[Run with options from args]
-    D --no--> F[Return error]
-    B --no--> G{{config.json in workdir?}}
-    G --yes--> H(Read config)
-    H --> I{{config correct?}}
-    I --yes--> J[Run with options from config]
-    I --no--> K[Return error]
-    G --no--> X[Create default config]
+    C --> D{{args correct?}}
+    D --yes--> E{{config correct?}} 
+    E --yes--> X[Run program]
+    E --no--> Y[Return error]
+    D --no--> Y
+    B --no--> F{{config.json in workdir?}}
+    F --yes--> E
+    F --no--> G(Create default config)
+    G --> Y
+    
 ```
 
 Flowchart for image processing.
