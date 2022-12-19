@@ -9,13 +9,21 @@ import imutils
 import pytesseract
 from imutils.perspective import four_point_transform
 
+RAW_IMG_FOLDERPATH = r'../images/receipts'
 
 DEBUG_MODE = False
 
 
 def read_image(path):
-    """Return an image object from path."""
-    img = cv.imread(str(path))
+    """Return an image representation.
+
+    Arguments:
+        path (str): path to the image
+
+    Returns:
+        object: image object as numpy ndarray
+    """
+    img = cv.imread(path)
     print(f'Image was read from file "{path}"')
 
     return img
@@ -202,3 +210,14 @@ def get_content(path, adjust=False):
     receipt = prepare_image(raw_img) if adjust else raw_img
 
     return recognize_image(receipt)
+
+
+if __name__ == '__main__':
+    # Set path to image file
+    raw_img_name = 'Paragon_2022-08-11_080851_75dpi.jpg'
+    raw_img_path = os.path.join(RAW_IMG_FOLDERPATH, raw_img_name)
+
+    # Read image
+    raw_img = read_image(raw_img_path)
+
+    print(raw_img)
