@@ -9,9 +9,9 @@ import imutils
 import pytesseract
 from imutils.perspective import four_point_transform
 
-RAW_IMG_FOLDERPATH = r'../images/receipts'
-
-DEBUG_MODE = False
+# Set default paths
+RAW_IMG_FOLDERPATH = r'..\images\receipts'
+PROC_IMG_FOLDERPATH = r'..\images\receipts_processed'
 
 
 def read_image(path):
@@ -29,22 +29,37 @@ def read_image(path):
     return img
 
 
-def resize_image(img):
-    """Return a resized image maintaining its aspect ratio."""
+def resize_image(img, save=False, filepath=None):
+    """Return a resized image maintaining its aspect ratio.
+
+    Arguments:
+        img (object): image object
+        save (bool): set whether the resized image should be saved (default False)
+        filepath (str): path to the output image file default (None)
+
+    Returns:
+        object: resized image representation
+    """
 
     def get_ratio(first, second):
         """Return a ratio of two image sizes."""
         return float(first.shape[1]) / float(second.shape[1])
 
-    global ratio
-
     img_resized = imutils.resize(img, width=500)
+
+    # Get scaling ratio for further processing
+    global ratio
     ratio = get_ratio(img, img_resized)
+
+    if save:
+        # Save the resized image
+        cv.imwrite(filepath, img_resized)
+        print(f'Resized image was saved to the file "{filepath}"')
 
     return img_resized
 
 
-def adjust_image(img, debug=DEBUG_MODE):
+def adjust_image(img, debug=False):
     """Return an image with adjusted color to enhance contour detection."""
     grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)   # convert to grayscale
     blurred = cv.GaussianBlur(grayed, (5, 5,), 0)  # blur using Gaussian kernel
@@ -59,7 +74,7 @@ def adjust_image(img, debug=DEBUG_MODE):
 
 def get_contour(img_ori,
                 img_edged,
-                debug=DEBUG_MODE,
+                debug=False,
                 save_outlined=False,
                 outlined_path=Path.cwd()/'outlined.jpg'):
     """Return a list of contours found image's edge map.
@@ -121,7 +136,7 @@ def get_contour(img_ori,
 
 def transform_image(img,
                     contour,
-                    debug=DEBUG_MODE,
+                    debug=False,
                     save_transformed=False,
                     transformed_path=Path.cwd()/'transformed.jpg'):
     """Return an image after four-point perspective transformation.
@@ -213,11 +228,21 @@ def get_content(path, adjust=False):
 
 
 if __name__ == '__main__':
-    # Set path to image file
-    raw_img_name = 'Paragon_2022-08-11_080851_75dpi.jpg'
-    raw_img_path = os.path.join(RAW_IMG_FOLDERPATH, raw_img_name)
+    # Set options
+    debug_mode = True
+
+    save_resized = True
+
+    # Set path to the raw image
+    raw_img_filename = 'test1.jpg'
+    raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
 
     # Read image
-    raw_img = read_image(raw_img_path)
+    raw_img = read_image(raw_img_filepath)
+
+    # Get resized image
+    filename, _ = os.path.splitext(raw_img_filename)
+    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_resized.jpg')
+    resized_img = resize_image(raw_img, save=save_resized, filepath=filepath)
 
     print(raw_img)
