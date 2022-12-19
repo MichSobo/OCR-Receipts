@@ -172,12 +172,14 @@ def transform_image(img,
 
 def prepare_image(img):
     """Return transformed image for further processing."""
-    resized = resize_image(img)
-    edged = adjust_image_color(resized)
+    img_resized = resize_image(img)
+    img_edged = adjust_image_color(img_resized)
 
-    contour = get_contour(resized, edged)
+    contour = get_contour(img_resized, img_edged)
 
-    return transform_image(img, contour)
+    img_transformed = transform_image(img, contour)
+
+    return img_transformed
 
 
 def recognize_image(img,
