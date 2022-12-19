@@ -15,7 +15,7 @@ PROC_IMG_FOLDERPATH = r'..\images\receipts_processed'
 
 
 def read_image(path):
-    """Return an image representation.
+    """Return an image read from file.
 
     Arguments:
         path (str): path to the image
@@ -59,17 +59,21 @@ def resize_image(img, save=False, filepath=None):
     return img_resized
 
 
-def adjust_image(img, debug=False):
+def adjust_image_color(img, debug=False, save=False, filepath=None):
     """Return an image with adjusted color to enhance contour detection."""
-    grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)   # convert to grayscale
-    blurred = cv.GaussianBlur(grayed, (5, 5,), 0)  # blur using Gaussian kernel
-    edged = cv.Canny(blurred, 75, 200)             # apply edge detection
+    img_grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)       # convert to grayscale
+    img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
+    img_edged = cv.Canny(img_blurred, 75, 200)             # apply edge detection
 
     if debug:
-        cv.imshow('Edged', edged)
+        cv.imshow('Edged', img_edged)
         cv.waitKey(0)
 
-    return edged
+    if save:
+        cv.imwrite(filepath, img_edged)
+        print(f'Adjusted colors image was saved to the file "{filepath}"')
+
+    return img_edged
 
 
 def get_contour(img_ori,
@@ -171,7 +175,7 @@ def transform_image(img,
 def prepare_image(img):
     """Return transformed image for further processing."""
     resized = resize_image(img)
-    edged = adjust_image(resized)
+    edged = adjust_image_color(resized)
 
     contour = get_contour(resized, edged)
 
@@ -232,6 +236,7 @@ if __name__ == '__main__':
     debug_mode = True
 
     save_resized = True
+    save_adjusted = True
 
     # Set path to the raw image
     raw_img_filename = 'test1.jpg'
@@ -244,5 +249,12 @@ if __name__ == '__main__':
     filename, _ = os.path.splitext(raw_img_filename)
     filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_resized.jpg')
     resized_img = resize_image(raw_img, save=save_resized, filepath=filepath)
+
+    # Get adjusted image
+    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_edged.jpg')
+    adjusted_img = adjust_image_color(resized_img,
+                                      debug=debug_mode,
+                                      save=save_adjusted,
+                                      filepath=filepath)
 
     print(raw_img)
