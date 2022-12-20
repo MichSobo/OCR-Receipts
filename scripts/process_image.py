@@ -133,22 +133,23 @@ def get_contour(img):
 def transform_image(img,
                     contour,
                     debug=False,
-                    save_transformed=False,
-                    transformed_path=Path.cwd()/'transformed.jpg'):
+                    save=False,
+                    filepath=None):
     """Return an image after four-point perspective transformation.
 
     Arguments:
-        img (object): image handle
+        img (object): image object to be transformed
         contour (list): contour definition
-        debug (bool): set to use debug mode and plot images during function
+        debug (bool): set whether to use debug mode and plot images during function
             execution (default False)
-        save_transformed (bool): set to save transformed image (default False)
-        transformed_path (str): path of the file to which the transformed image
+        save (bool): set whether to save the transformed image
+            (default False)
+        filepath (str): path of the file to which the transformed image
         will be saved; if left blank, it will be saved in working directory as
             'transformed.jpg'
 
     Returns:
-        list: a list of contours
+        list: transformed image
     """
     transformed_img = four_point_transform(img, contour.reshape(4, 2) * ratio)
 
@@ -157,9 +158,9 @@ def transform_image(img,
                   imutils.resize(transformed_img, width=500))
         cv.waitKey(0)
 
-    if save_transformed:
-        cv.imwrite(str(transformed_path), transformed_img)
-        print(f'Transformed image was saved to the file "{transformed_path}"')
+    if save:
+        cv.imwrite(filepath, transformed_img)
+        print(f'Transformed image was saved to the file "{filepath}"')
 
     return transformed_img
 
@@ -232,6 +233,7 @@ if __name__ == '__main__':
     save_resized = True
     save_adjusted = True
     save_outlined = True
+    save_transformed = True
 
     # Set path to the raw image
     raw_img_filename = 'test1.jpg'
@@ -261,5 +263,12 @@ if __name__ == '__main__':
                                 debug=debug_mode,
                                 save=save_outlined,
                                 filepath=filepath)
+
+    # Get transformed image
+    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_transformed.jpg')
+    transformed_img = transform_image(raw_img, contour,
+                                      debug=debug_mode,
+                                      save=save_transformed,
+                                      filepath=filepath)
 
     print('cos')
