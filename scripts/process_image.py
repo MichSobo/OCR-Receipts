@@ -28,7 +28,6 @@ def read_image(path):
 
     return img
 
-
 def resize_image(img, save=False, filepath=None):
     """Return a resized image maintaining its aspect ratio.
 
@@ -76,28 +75,34 @@ def adjust_image_color(img, debug=False, save=False, filepath=None):
     return img_edged
 
 
-def get_contour(img,
-                img_edged,
-                debug=False,
-                save=False,
-                filepath=None):
+def draw_outline(img, contour, debug=False, save=False, filepath=None):
+    """Return an image with contour layer on top."""
+    img_outlined = img.copy()
+    cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
+
+    if debug:
+        cv.imshow('Receipt outline', img_outlined)
+        cv.waitKey(0)
+
+    if save:
+        cv.imwrite(str(filepath), img_outlined)
+        print(f'Image with detected outline was saved to the file "{filepath}"')
+
+    return img_outlined
+
+
+def get_contour(img):
     """Return a list of contours found in image's edge map.
 
     Arguments:
-        img (object): reference image
-        img_edged (object): edged image
-        debug (bool): set to use debug mode and plot images during function
-            execution (default False)
-        save (bool): set whether the resized image should be saved
-            (default False)
-        filepath (str): path to the output image file (default None)
+        img (object): image to use for contour detection
 
     Returns:
         list: list of contours
     """
     # Find contours
     contours = cv.findContours(
-        img_edged, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+        img, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
     )
     contours = imutils.grab_contours(contours)
 
@@ -121,17 +126,6 @@ def get_contour(img,
     if contour is None:
         raise Exception('Could not find proper receipt contours. '
                         'Review the input image and try again.')
-
-    img_outline = img.copy()
-    cv.drawContours(img_outline, [contour], -1, (0, 255, 0), 2)
-
-    if debug:
-        cv.imshow('Receipt outline', img_outline)
-        cv.waitKey(0)
-
-    if save:
-        cv.imwrite(str(filepath), img_outline)
-        print(f'Image with detected outline was saved to the file "{filepath}"')
 
     return contour
 
@@ -175,7 +169,7 @@ def prepare_image(img):
     img_resized = resize_image(img)
     img_edged = adjust_image_color(img_resized)
 
-    contour = get_contour(img_resized, img_edged)
+    contour = get_contour(img_edged)
 
     img_transformed = transform_image(img, contour)
 
@@ -259,11 +253,13 @@ if __name__ == '__main__':
                                       filepath=filepath)
 
     # Get contours
-    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_outlined.jpg')
-    contour = get_contour(resized_img, adjusted_img,
-                          debug=debug_mode,
-                          save=save_outlined,
-                          filepath=filepath)
+    contour = get_contour(adjusted_img)
 
+    # Get outlined image
+    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_outlined.jpg')
+    outlined_img = draw_outline(resized_img, contour,
+                                debug=debug_mode,
+                                save=save_outlined,
+                                filepath=filepath)
 
     print('cos')
