@@ -9,9 +9,38 @@ import imutils
 import pytesseract
 from imutils.perspective import four_point_transform
 
+
 # Set default paths
 RAW_IMG_FOLDERPATH = r'..\images\receipts'
 PROC_IMG_FOLDERPATH = r'..\images\receipts_processed'
+
+# Set default options for debugging
+DEBUG_MODE = True     # set whether to display processed images in runtime
+SAVE_PROC_IMG = True  # set whether the processed images should be saved
+
+
+def debug_image(func):
+    """Function decorator for debugging purposes."""
+    def wrapper_debug_image(img, **kwargs):
+        # Get the processed image by running a function
+        proc_img = func(img)
+
+        if DEBUG_MODE:
+            # Show the image during function execution
+            cv.imshow('Image', proc_img)
+            cv.waitKey(0)
+
+        if SAVE_PROC_IMG:
+            # Save the processed image to a file
+            proc_img_filename = 'proc_img.jpg'
+            proc_img_filepath = os.path.join(PROC_IMG_FOLDERPATH, proc_img_filename)
+
+            cv.imwrite(proc_img_filepath, proc_img)
+            print(f'Image was saved to the file "{proc_img_filepath}"')
+
+        return proc_img
+
+    return wrapper_debug_image
 
 
 def read_image(path):
@@ -28,14 +57,13 @@ def read_image(path):
 
     return img
 
-def resize_image(img, save=False, filepath=None):
+
+@debug_image
+def resize_image(img):
     """Return a resized image maintaining its aspect ratio.
 
     Arguments:
         img (object): image object
-        save (bool): set whether the resized image should be saved
-            (default False)
-        filepath (str): path to the output image file (default None)
 
     Returns:
         object: resized image
@@ -50,10 +78,6 @@ def resize_image(img, save=False, filepath=None):
     # Get scaling ratio for further processing
     global ratio
     ratio = get_ratio(img, img_resized)
-
-    if save:
-        cv.imwrite(filepath, img_resized)
-        print(f'Resized image was saved to the file "{filepath}"')
 
     return img_resized
 
@@ -227,6 +251,7 @@ def get_content(path, adjust=False):
 
 
 if __name__ == '__main__':
+    """
     # Set options
     debug_mode = True
 
@@ -270,5 +295,13 @@ if __name__ == '__main__':
                                       debug=debug_mode,
                                       save=save_transformed,
                                       filepath=filepath)
+    """
+    # Set path to the raw image
+    raw_img_filename = 'test1.jpg'
+    raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
 
+    # Read image
+    raw_img = read_image(raw_img_filepath)
+
+    resize_image = resize_image(raw_img)
     print('cos')
