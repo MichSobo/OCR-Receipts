@@ -189,22 +189,22 @@ def recognize_image(img,
     return text
 
 
-def get_content(path, adjust=False):
-    """Read and process image. Return recognized text content.
+def get_content(path, do_prepare_image=False):
+    """Read and process an image. Return recognized text content.
 
     Arguments:
-        path (str): path to image file
-        adjust (bool): set to perform image adjustment procedure (default False)
+        path (str): path to the file with image
+        do_prepare_image (bool): set whether to perform image preparation from
+            prepare_image() (default False)
 
     Returns:
         list[str]: list of string elements, where each element corresponds to
             a single line of recognized content
     """
     raw_img = read_image(path)
+    img = prepare_image(raw_img) if do_prepare_image else raw_img
 
-    receipt = prepare_image(raw_img) if adjust else raw_img
-
-    return recognize_image(receipt)
+    return recognize_image(img)
 
 
 if __name__ == '__main__':
