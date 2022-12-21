@@ -2,6 +2,7 @@
 Code for image processing and retrieving content with use of OCR methods.
 """
 import os
+import functools
 from pathlib import Path
 
 import cv2 as cv
@@ -21,22 +22,28 @@ SAVE_PROC_IMG = True  # set whether the processed images should be saved
 
 def debug_image(func):
     """Function decorator for debugging purposes."""
+    proc_img_name_mapper = {
+        'resize_image': 'resized',
+    }
+
+    @functools.wraps(func)
     def wrapper_debug_image(img, **kwargs):
         # Get the processed image by running a function
         proc_img = func(img)
 
         if DEBUG_MODE:
-            # Show the image during function execution
-            cv.imshow('Image', proc_img)
+            # Show the processed image during function execution
+            proc_img_name = proc_img_name_mapper[func.__name__].capitalize()
+            cv.imshow(proc_img_name, proc_img)
             cv.waitKey(0)
 
         if SAVE_PROC_IMG:
             # Save the processed image to a file
-            proc_img_filename = 'proc_img.jpg'
+            proc_img_filename = proc_img_name_mapper[func.__name__] + '.jpg'
             proc_img_filepath = os.path.join(PROC_IMG_FOLDERPATH, proc_img_filename)
 
             cv.imwrite(proc_img_filepath, proc_img)
-            print(f'Image was saved to the file "{proc_img_filepath}"')
+            print(f'Image was saved to file "{proc_img_filepath}"')
 
         return proc_img
 
@@ -299,6 +306,15 @@ if __name__ == '__main__':
     # Set path to the raw image
     raw_img_filename = 'test1.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
+
+    if SAVE_PROC_IMG:
+        filename, ext = os.path.splitext(raw_img_filename)
+
+        # Set output folder for processed images
+        PROC_IMG_FOLDERPATH = os.path.join(PROC_IMG_FOLDERPATH, filename)
+
+        # Create the output folder
+        os.makedirs(PROC_IMG_FOLDERPATH, exist_ok=True)
 
     # Read image
     raw_img = read_image(raw_img_filepath)
