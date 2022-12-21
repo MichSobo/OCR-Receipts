@@ -24,7 +24,7 @@ def debug_image(func):
     """Function decorator for debugging purposes."""
     proc_img_name_mapper = {
         'resize_image': 'resized',
-        'adjust_image_color': 'adjusted color',
+        'adjust_color': 'adjusted color',
         'draw_outline': 'outlined',
         'transform_image': 'transformed',
     }
@@ -54,7 +54,7 @@ def debug_image(func):
 
 
 def read_image(path):
-    """Return an image read from path to file."""
+    """Return an image read from path to the file."""
     img = cv.imread(path)
     print(f'Image was read from file "{path}"')
 
@@ -79,7 +79,7 @@ def resize_image(img):
 
 
 @debug_image
-def adjust_image_color(img):
+def adjust_color(img):
     """Return an image with adjusted color to enhance contour detection."""
     img_grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)       # convert to grayscale
     img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
@@ -90,7 +90,7 @@ def adjust_image_color(img):
 
 @debug_image
 def draw_outline(img, contour):
-    """Return an image with contour layer on top."""
+    """Return an image with added contour layer."""
     img_outlined = img.copy()
     cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
 
@@ -134,7 +134,7 @@ def transform_image(img, contour):
     """Return an image after four-point perspective transformation.
 
     Arguments:
-        img (object): image object to be transformed
+        img (object): image to be transformed
         contour (list): contour definition
 
     Returns:
@@ -146,11 +146,12 @@ def transform_image(img, contour):
 
 
 def prepare_image(img):
-    """Return transformed image for further processing."""
+    """Return an image prepared to enhance content recognition."""
     img_resized = resize_image(img)
-    img_edged = adjust_image_color(img_resized)
+    img_edged = adjust_color(img_resized)
 
     contour = get_contour(img_edged)
+    img_outlined = draw_outline(img_resized, contour)
 
     img_transformed = transform_image(img, contour)
 
@@ -268,6 +269,7 @@ if __name__ == '__main__':
         # Create the output folder
         os.makedirs(PROC_IMG_FOLDERPATH, exist_ok=True)
 
-    resize_image = resize_image(raw_img)
+    # resize_image = resize_image(raw_img)
+    prepared_img = prepare_image(raw_img)
 
     print('cos')
