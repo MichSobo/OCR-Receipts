@@ -207,52 +207,7 @@ def get_content(path, do_prepare_image=False):
     return recognize_image(img)
 
 
-if __name__ == '__main__':
-    """
-    # Set options
-    debug_mode = True
-
-    save_resized = True
-    save_adjusted = True
-    save_outlined = True
-    save_transformed = True
-
-    # Set path to the raw image
-    raw_img_filename = 'test1.jpg'
-    raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
-
-    # Read image
-    raw_img = read_image(raw_img_filepath)
-
-    # Get resized image
-    filename, _ = os.path.splitext(raw_img_filename)
-    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_resized.jpg')
-    resized_img = resize_image(raw_img, save=save_resized, filepath=filepath)
-
-    # Get adjusted image
-    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_edged.jpg')
-    adjusted_img = adjust_image_color(resized_img,
-                                      debug=debug_mode,
-                                      save=save_adjusted,
-                                      filepath=filepath)
-
-    # Get contours
-    contour = get_contour(adjusted_img)
-
-    # Get outlined image
-    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_outlined.jpg')
-    outlined_img = draw_outline(resized_img, contour,
-                                debug=debug_mode,
-                                save=save_outlined,
-                                filepath=filepath)
-
-    # Get transformed image
-    filepath = os.path.join(PROC_IMG_FOLDERPATH, filename + '_transformed.jpg')
-    transformed_img = transform_image(raw_img, contour,
-                                      debug=debug_mode,
-                                      save=save_transformed,
-                                      filepath=filepath)
-    """
+def main():
     # Set path to the raw image
     raw_img_filename = 'test1.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
@@ -264,6 +219,7 @@ if __name__ == '__main__':
         filename, ext = os.path.splitext(raw_img_filename)
 
         # Set output folder for processed images
+        global PROC_IMG_FOLDERPATH
         PROC_IMG_FOLDERPATH = os.path.join(PROC_IMG_FOLDERPATH, filename)
 
         # Create the output folder
@@ -275,4 +231,6 @@ if __name__ == '__main__':
     # Recognize image content
     content = recognize_image(prepared_img)
 
-    print('cos')
+
+if __name__ == '__main__':
+    main()
