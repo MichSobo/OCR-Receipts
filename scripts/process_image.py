@@ -24,12 +24,15 @@ def debug_image(func):
     """Function decorator for debugging purposes."""
     proc_img_name_mapper = {
         'resize_image': 'resized',
+        'adjust_image_color': 'adjusted color',
+        'draw_outline': 'outlined',
+        'transform_image': 'transformed',
     }
 
     @functools.wraps(func)
-    def wrapper_debug_image(img, **kwargs):
+    def wrapper_debug_image(img, *args, **kwargs):
         # Get the processed image by running a function
-        proc_img = func(img)
+        proc_img = func(img, *args, **kwargs)
 
         if DEBUG_MODE:
             # Show the processed image during function execution
@@ -89,35 +92,21 @@ def resize_image(img):
     return img_resized
 
 
-def adjust_image_color(img, debug=False, save=False, filepath=None):
+@debug_image
+def adjust_image_color(img):
     """Return an image with adjusted color to enhance contour detection."""
     img_grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)       # convert to grayscale
     img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
     img_edged = cv.Canny(img_blurred, 75, 200)             # apply edge detection
 
-    if debug:
-        cv.imshow('Edged', img_edged)
-        cv.waitKey(0)
-
-    if save:
-        cv.imwrite(filepath, img_edged)
-        print(f'Adjusted colors image was saved to the file "{filepath}"')
-
     return img_edged
 
 
-def draw_outline(img, contour, debug=False, save=False, filepath=None):
+@debug_image
+def draw_outline(img, contour):
     """Return an image with contour layer on top."""
     img_outlined = img.copy()
     cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
-
-    if debug:
-        cv.imshow('Receipt outline', img_outlined)
-        cv.waitKey(0)
-
-    if save:
-        cv.imwrite(str(filepath), img_outlined)
-        print(f'Image with detected outline was saved to the file "{filepath}"')
 
     return img_outlined
 
@@ -161,37 +150,18 @@ def get_contour(img):
     return contour
 
 
-def transform_image(img,
-                    contour,
-                    debug=False,
-                    save=False,
-                    filepath=None):
+@debug_image
+def transform_image(img, contour):
     """Return an image after four-point perspective transformation.
 
     Arguments:
         img (object): image object to be transformed
         contour (list): contour definition
-        debug (bool): set whether to use debug mode and plot images during function
-            execution (default False)
-        save (bool): set whether to save the transformed image
-            (default False)
-        filepath (str): path of the file to which the transformed image
-        will be saved; if left blank, it will be saved in working directory as
-            'transformed.jpg'
 
     Returns:
         list: transformed image
     """
     transformed_img = four_point_transform(img, contour.reshape(4, 2) * ratio)
-
-    if debug:
-        cv.imshow('Receipt transform',
-                  imutils.resize(transformed_img, width=500))
-        cv.waitKey(0)
-
-    if save:
-        cv.imwrite(filepath, transformed_img)
-        print(f'Transformed image was saved to the file "{filepath}"')
 
     return transformed_img
 
@@ -307,6 +277,9 @@ if __name__ == '__main__':
     raw_img_filename = 'test1.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
 
+    # Read image
+    raw_img = read_image(raw_img_filepath)
+
     if SAVE_PROC_IMG:
         filename, ext = os.path.splitext(raw_img_filename)
 
@@ -315,9 +288,6 @@ if __name__ == '__main__':
 
         # Create the output folder
         os.makedirs(PROC_IMG_FOLDERPATH, exist_ok=True)
-
-    # Read image
-    raw_img = read_image(raw_img_filepath)
 
     resize_image = resize_image(raw_img)
     print('cos')
