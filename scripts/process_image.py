@@ -54,14 +54,7 @@ def debug_image(func):
 
 
 def read_image(path):
-    """Return an image read from file.
-
-    Arguments:
-        path (str): path to the image
-
-    Returns:
-        object: image object as numpy ndarray
-    """
+    """Return an image read from path to file."""
     img = cv.imread(path)
     print(f'Image was read from file "{path}"')
 
@@ -70,14 +63,7 @@ def read_image(path):
 
 @debug_image
 def resize_image(img):
-    """Return a resized image maintaining its aspect ratio.
-
-    Arguments:
-        img (object): image object
-
-    Returns:
-        object: resized image
-    """
+    """Return a resized image maintaining its aspect ratio."""
 
     def get_ratio(first, second):
         """Return a ratio of two image sizes."""
@@ -112,14 +98,7 @@ def draw_outline(img, contour):
 
 
 def get_contour(img):
-    """Return a list of contours found in image's edge map.
-
-    Arguments:
-        img (object): image to use for contour detection
-
-    Returns:
-        list: list of contours
-    """
+    """Return a list of contours found in image's edge map."""
     # Find contours
     contours = cv.findContours(
         img, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
@@ -159,7 +138,7 @@ def transform_image(img, contour):
         contour (list): contour definition
 
     Returns:
-        list: transformed image
+        object: transformed image
     """
     transformed_img = four_point_transform(img, contour.reshape(4, 2) * ratio)
 
@@ -290,4 +269,5 @@ if __name__ == '__main__':
         os.makedirs(PROC_IMG_FOLDERPATH, exist_ok=True)
 
     resize_image = resize_image(raw_img)
+
     print('cos')
