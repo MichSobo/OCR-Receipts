@@ -34,19 +34,26 @@ def debug_image(func):
 
     @functools.wraps(func)
     def wrapper_debug_image(img, *args, **kwargs):
-        # Get the processed image by running a function
+        # Get the processed image by running appropriate function
         proc_img = func(img, *args, **kwargs)
 
-        if DEBUG_MODE:
+        # Get arguments kwargs if passed else get default
+        debug_mode = kwargs.get('debug_mode', DEBUG_MODE)
+        save_proc_img = kwargs.get('save_proc_img', SAVE_PROC_IMG)
+
+        if debug_mode:
             # Show the processed image during function execution
             proc_img_name = proc_img_name_mapper[func.__name__].capitalize()
             cv.imshow(proc_img_name, proc_img)
             cv.waitKey(0)
 
-        if SAVE_PROC_IMG:
+        if save_proc_img:
+            # Get output folder path if passed else get default
+            proc_img_folderpath = kwargs.get('path', PROC_IMG_FOLDERPATH)
+
             # Save the processed image to a file
             proc_img_filename = proc_img_name_mapper[func.__name__] + '.jpg'
-            proc_img_filepath = os.path.join(PROC_IMG_FOLDERPATH, proc_img_filename)
+            proc_img_filepath = os.path.join(proc_img_folderpath, proc_img_filename)
 
             cv.imwrite(proc_img_filepath, proc_img)
             print(f'Image was saved to file "{proc_img_filepath}"')
@@ -65,7 +72,7 @@ def read_image(path):
 
 
 @debug_image
-def resize_image(img):
+def resize_image(img, **kwargs):
     """Return a resized image maintaining its aspect ratio."""
 
     def get_ratio(first, second):
@@ -82,7 +89,7 @@ def resize_image(img):
 
 
 @debug_image
-def adjust_color(img):
+def adjust_color(img, **kwargs):
     """Return an image with adjusted color to enhance contour detection."""
     img_grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)       # convert to grayscale
     img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
@@ -92,7 +99,7 @@ def adjust_color(img):
 
 
 @debug_image
-def draw_outline(img, contour):
+def draw_outline(img, contour, **kwargs):
     """Return an image with added contour layer."""
     img_outlined = img.copy()
     cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
@@ -133,7 +140,7 @@ def get_contour(img):
 
 
 @debug_image
-def transform_image(img, contour):
+def transform_image(img, contour, **kwargs):
     """Return an image after four-point perspective transformation.
 
     Arguments:
@@ -183,7 +190,7 @@ def recognize_img_content(img,
                                        config='--psm 4')
 
     if write_img_content:
-        # Write the recognized content to a text file
+        # Write recognized content to a text file
         with open(content_path, 'w', encoding='utf-8') as f:
             f.write(text)
 
@@ -238,7 +245,8 @@ def main():
         # Create the output folder
         os.makedirs(OUTPUT_FOLDERPATH, exist_ok=True)
 
-    raw_content_filepath = os.path.join(OUTPUT_FOLDERPATH, 'raw_content.txt')
+        raw_content_filepath = os.path.join(OUTPUT_FOLDERPATH, 'raw_content.txt')
+
     raw_content = recognize_img_content(prepared_img,
                                         write_img_content=WRITE_IMG_CONTENT,
                                         content_path=raw_content_filepath)
@@ -248,3 +256,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+else:
+    # Set default options for external usage
+    DEBUG_MODE = False
+    SAVE_PROC_IMG = False
+    WRITE_IMG_CONTENT = False
