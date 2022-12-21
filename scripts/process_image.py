@@ -3,6 +3,7 @@ Code for image processing and retrieving content with use of OCR methods.
 """
 import os
 import functools
+import shutil
 from pathlib import Path
 
 import cv2 as cv
@@ -14,10 +15,12 @@ from imutils.perspective import four_point_transform
 # Set default paths
 RAW_IMG_FOLDERPATH = r'..\images\receipts'
 PROC_IMG_FOLDERPATH = r'..\images\receipts_processed'
+OUTPUT_FOLDERPATH = r'..\results'
 
 # Set default options for debugging
-DEBUG_MODE = True     # set whether to display processed images in runtime
-SAVE_PROC_IMG = True  # set whether the processed images should be saved
+DEBUG_MODE = True         # set whether to display processed images in runtime
+SAVE_PROC_IMG = True      # set whether the processed images should be saved
+WRITE_IMG_CONTENT = True  # set whether the recognized content should be written
 
 
 def debug_image(func):
@@ -158,18 +161,18 @@ def prepare_image(img):
     return img_transformed
 
 
-def recognize_image(img,
-                    write_content=True,
-                    content_path='content.txt'):
+def recognize_img_content(img,
+                          write_img_content=True,
+                          content_path='raw_content.txt'):
     """Execute OCR and return recognized content.
 
     Arguments:
         img (object): image for content recognition
-        write_content (bool): set whether to write the recognized content to a
-            text file (default True)
+        write_img_content (bool): set whether to write the recognized content
+            to a text file (default True)
         content_path (str): path of the file to which the recognized content
             will be saved; if left blank, it will be saved in working directory
-            as 'content.txt'
+            as 'raw_content.txt'
 
     Returns:
         list[str]: list of strings, where each string corresponds to a single
@@ -179,7 +182,7 @@ def recognize_image(img,
     text = pytesseract.image_to_string(cv.cvtColor(img, cv.COLOR_BGR2RGB),
                                        config='--psm 4')
 
-    if write_content:
+    if write_img_content:
         # Write the recognized content to a text file
         with open(content_path, 'w', encoding='utf-8') as f:
             f.write(text)
@@ -189,11 +192,11 @@ def recognize_image(img,
     return text
 
 
-def get_content(path, do_prepare_image=False):
+def get_img_content(img_filepath, do_prepare_image=False):
     """Read and process an image. Return recognized text content.
 
     Arguments:
-        path (str): path to the file with image
+        img_filepath (str): path to the file with image to be processed
         do_prepare_image (bool): set whether to perform image preparation from
             prepare_image() (default False)
 
@@ -201,23 +204,22 @@ def get_content(path, do_prepare_image=False):
         list[str]: list of string elements, where each element corresponds to
             a single line of recognized content
     """
-    raw_img = read_image(path)
+    raw_img = read_image(img_filepath)
     img = prepare_image(raw_img) if do_prepare_image else raw_img
 
-    return recognize_image(img)
+    return recognize_img_content(img)
 
 
 def main():
     # Set path to the raw image
     raw_img_filename = 'test1.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
+    filename, ext = os.path.splitext(raw_img_filename)
 
     # Read image
     raw_img = read_image(raw_img_filepath)
 
     if SAVE_PROC_IMG:
-        filename, ext = os.path.splitext(raw_img_filename)
-
         # Set output folder for processed images
         global PROC_IMG_FOLDERPATH
         PROC_IMG_FOLDERPATH = os.path.join(PROC_IMG_FOLDERPATH, filename)
@@ -225,11 +227,23 @@ def main():
         # Create the output folder
         os.makedirs(PROC_IMG_FOLDERPATH, exist_ok=True)
 
-    # resize_image = resize_image(raw_img)
     prepared_img = prepare_image(raw_img)
 
-    # Recognize image content
-    content = recognize_image(prepared_img)
+    # Recognize image content and write it to a file
+    if WRITE_IMG_CONTENT:
+        # Set output folder for recognized content
+        global OUTPUT_FOLDERPATH
+        OUTPUT_FOLDERPATH = os.path.join(OUTPUT_FOLDERPATH, filename)
+
+        # Create the output folder
+        os.makedirs(OUTPUT_FOLDERPATH, exist_ok=True)
+
+    raw_content_filepath = os.path.join(OUTPUT_FOLDERPATH, 'raw_content.txt')
+    raw_content = recognize_img_content(prepared_img,
+                                        write_img_content=WRITE_IMG_CONTENT,
+                                        content_path=raw_content_filepath)
+
+    return raw_content
 
 
 if __name__ == '__main__':
