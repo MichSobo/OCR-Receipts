@@ -63,6 +63,9 @@ def debug_image(func):
 
 def read_image(path):
     """Return an image read from path to the file."""
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f'No such file: "{path}"')
+
     img = cv.imread(path)
     print(f'Image was read from file "{path}"')
 
@@ -217,7 +220,7 @@ def get_img_content(img_filepath, do_prepare_image=False):
 
 def main():
     # Set path to the raw image
-    raw_img_filename = 'test1.jpg'
+    raw_img_filename = 'tes1.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
     filename, ext = os.path.splitext(raw_img_filename)
 

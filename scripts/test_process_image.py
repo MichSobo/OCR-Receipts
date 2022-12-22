@@ -1,10 +1,18 @@
+"""
+Code for process_image.py unit testing.
+"""
 import unittest
 
+import process_image
 
-class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)  # add assertion here
+
+class TestReadImage(unittest.TestCase):
+    """Test case for read_image()"""
+
+    def test_case01(self):
+        """tests with not existing file"""
+        self.assertRaises(FileNotFoundError, process_image.read_image, 'not_existing_file.jpg')
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
