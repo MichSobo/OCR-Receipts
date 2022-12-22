@@ -3,8 +3,6 @@ Code for image processing and retrieving content with use of OCR methods.
 """
 import os
 import functools
-import shutil
-from pathlib import Path
 
 import cv2 as cv
 import imutils
