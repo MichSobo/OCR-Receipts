@@ -9,16 +9,12 @@ import imutils
 import pytesseract
 from imutils.perspective import four_point_transform
 
+LOG = True
 
 # Set default paths
 RAW_IMG_FOLDERPATH = r'..\images\receipts'
 PROC_IMG_FOLDERPATH = r'..\images\receipts_processed'
 OUTPUT_FOLDERPATH = r'..\results'
-
-# Set default options for debugging
-DEBUG_MODE = True         # set whether to display processed images in runtime
-SAVE_PROC_IMG = True      # set whether the processed images should be saved
-WRITE_IMG_CONTENT = True  # set whether the recognized content should be written
 
 
 def debug_image(func):
@@ -39,22 +35,24 @@ def debug_image(func):
         debug_mode = kwargs.get('debug_mode', DEBUG_MODE)
         save_proc_img = kwargs.get('save_proc_img', SAVE_PROC_IMG)
 
-        if debug_mode:
+        if debug_mode is True:
             # Show the processed image during function execution
             proc_img_name = proc_img_name_mapper[func.__name__].capitalize()
             cv.imshow(proc_img_name, proc_img)
             cv.waitKey(0)
 
-        if save_proc_img:
+        if save_proc_img is True:
             # Get output folder path if passed else get default
-            proc_img_folderpath = kwargs.get('path', PROC_IMG_FOLDERPATH)
+            proc_img_folderpath = kwargs.get('proc_img_folderpath', PROC_IMG_FOLDERPATH)
 
             # Save the processed image to a file
             proc_img_filename = proc_img_name_mapper[func.__name__] + '.jpg'
             proc_img_filepath = os.path.join(proc_img_folderpath, proc_img_filename)
 
             cv.imwrite(proc_img_filepath, proc_img)
-            print(f'Image was saved to file "{proc_img_filepath}"')
+
+            if LOG:
+                print(f'Image was saved to file "{proc_img_filepath}"')
 
         return proc_img
 
@@ -67,13 +65,15 @@ def read_image(path):
         raise FileNotFoundError(f'No such file: "{path}"')
 
     img = cv.imread(path)
-    print(f'Image was read from file "{path}"')
+
+    if LOG:
+        print(f'Image was read from file "{path}"')
 
     return img
 
 
 @debug_image
-def resize_image(img, **kwargs):
+def resize_image(img, debug=False, save_proc_img=False, proc_img_folderpath=None):
     """Return a resized image maintaining its aspect ratio."""
 
     def get_ratio(first, second):
@@ -90,7 +90,7 @@ def resize_image(img, **kwargs):
 
 
 @debug_image
-def adjust_color(img, **kwargs):
+def adjust_color(img, debug=False, save_proc_img=False, proc_img_folderpath=None):
     """Return an image with adjusted color to enhance contour detection."""
     img_grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)       # convert to grayscale
     img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
@@ -100,7 +100,7 @@ def adjust_color(img, **kwargs):
 
 
 @debug_image
-def draw_outline(img, contour, **kwargs):
+def draw_outline(img, contour, debug=False, save_proc_img=False, proc_img_folderpath=None):
     """Return an image with added contour layer."""
     img_outlined = img.copy()
     cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
@@ -141,7 +141,7 @@ def get_contour(img):
 
 
 @debug_image
-def transform_image(img, contour, **kwargs):
+def transform_image(img, contour, debug=False, save_proc_img=False, proc_img_folderpath=None):
     """Return an image after four-point perspective transformation.
 
     Arguments:
@@ -156,27 +156,27 @@ def transform_image(img, contour, **kwargs):
     return transformed_img
 
 
-def prepare_image(img):
+def prepare_image(img, **kwargs):
     """Return an image prepared to enhance content recognition."""
-    img_resized = resize_image(img)
-    img_edged = adjust_color(img_resized)
+    img_resized = resize_image(img, **kwargs)
+    img_edged = adjust_color(img_resized, **kwargs)
 
     contour = get_contour(img_edged)
-    img_outlined = draw_outline(img_resized, contour)
+    img_outlined = draw_outline(img_resized, contour, **kwargs)
 
-    img_transformed = transform_image(img, contour)
+    img_transformed = transform_image(img, contour, **kwargs)
 
     return img_transformed
 
 
-def recognize_img_content(img,
-                          write_img_content=True,
-                          content_path='raw_content.txt'):
+def recognize_content(img,
+                      write_content=True,
+                      content_path='raw_content.txt'):
     """Execute OCR and return recognized content.
 
     Arguments:
         img (object): image for content recognition
-        write_img_content (bool): set whether to write the recognized content
+        write_content (bool): set whether to write the recognized content
             to a text file (default True)
         content_path (str): path of the file to which the recognized content
             will be saved; if left blank, it will be saved in working directory
@@ -190,12 +190,13 @@ def recognize_img_content(img,
     text = pytesseract.image_to_string(cv.cvtColor(img, cv.COLOR_BGR2RGB),
                                        config='--psm 4')
 
-    if write_img_content:
-        # Write recognized content to a text file
+    if write_content is True:
+        # Write recognized content to file
         with open(content_path, 'w', encoding='utf-8') as f:
             f.write(text)
 
-        print(f'Recognized image content was written to file "{content_path}"')
+        if LOG is True:
+            print(f'Recognized image content was written to file "{content_path}"')
 
     return text
 
@@ -212,15 +213,26 @@ def get_img_content(img_filepath, do_prepare_image=False):
         list[str]: list of string elements, where each element corresponds to
             a single line of recognized content
     """
+    # Get image
     raw_img = read_image(img_filepath)
     img = prepare_image(raw_img) if do_prepare_image else raw_img
 
-    return recognize_img_content(img)
+    # Set output directory
+    filename = os.path.basename(img_filepath)
+    filename, _ = os.path.splitext(filename)
+    output_folderpath = os.path.join(OUTPUT_FOLDERPATH, filename)
+    os.makedirs(output_folderpath, exist_ok=True)
+
+    # Write content to file
+    output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
+    content = recognize_content(img, content_path=output_filepath)
+
+    return content
 
 
 def main():
     # Set path to the raw image
-    raw_img_filename = 'tes1.jpg'
+    raw_img_filename = 'sample1.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
     filename, ext = os.path.splitext(raw_img_filename)
 
@@ -247,15 +259,22 @@ def main():
         os.makedirs(OUTPUT_FOLDERPATH, exist_ok=True)
 
         raw_content_filepath = os.path.join(OUTPUT_FOLDERPATH, 'raw_content.txt')
+    else:
+        raw_content_filepath = None
 
-    raw_content = recognize_img_content(prepared_img,
-                                        write_img_content=WRITE_IMG_CONTENT,
-                                        content_path=raw_content_filepath)
+    raw_content = recognize_content(prepared_img,
+                                    write_content=WRITE_IMG_CONTENT,
+                                    content_path=raw_content_filepath)
 
     return raw_content
 
 
 if __name__ == '__main__':
+    # Set default options internal usage
+    DEBUG_MODE = True         # set whether to display processed images in runtime
+    SAVE_PROC_IMG = True      # set whether the processed images should be saved
+    WRITE_IMG_CONTENT = True  # set whether the recognized content should be written
+
     main()
 else:
     # Set default options for external usage
