@@ -1,5 +1,15 @@
 """
 Code for image processing and retrieving content with use of OCR methods.
+
+Content retrieving procedure:
+1. Read the image
+2. Prepare the image to improve OCR accuracy (optional step):
+    2.1. Adjust image colors to enhance receipt's outline detection
+    2.2. Apply edge detection to reveal the outline of the receipt
+    2.3. Identify the largest, closed contour with four vertices
+    2.4. Apply a perspective transformation to the image with detected contour
+3. Use OCR (Tesseract engine with --psm 4) on the receipt to get the content
+4. Save the content to file
 """
 import os
 import functools
@@ -31,7 +41,7 @@ def debug_image(func):
         # Get the processed image by running appropriate function
         proc_img = func(img, *args, **kwargs)
 
-        # Get arguments kwargs if passed else get default
+        # Get kwargs if passed else get default
         debug_mode = kwargs.get('debug_mode', DEBUG_MODE)
         save_proc_img = kwargs.get('save_proc_img', SAVE_PROC_IMG)
 
@@ -74,7 +84,18 @@ def read_image(path):
 
 @debug_image
 def resize_image(img, debug=False, save_proc_img=False, proc_img_folderpath=None):
-    """Return a resized image maintaining its aspect ratio."""
+    """Return a resized image maintaining its aspect ratio.
+
+    Arguments:
+        img (object): image to be transformed
+        debug (bool): set whether to display processed images at runtime
+        save_proc_img (bool): set whether to save the processed images
+        proc_img_folderpath (str): path to the folder, to which the processed
+            images should be saved
+
+    Returns:
+        object: resized image
+    """
 
     def get_ratio(first, second):
         """Return a ratio of two image sizes."""
@@ -91,8 +112,19 @@ def resize_image(img, debug=False, save_proc_img=False, proc_img_folderpath=None
 
 @debug_image
 def adjust_color(img, debug=False, save_proc_img=False, proc_img_folderpath=None):
-    """Return an image with adjusted color to enhance contour detection."""
-    img_grayed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)       # convert to grayscale
+    """Return an image with adjusted color to enhance contour detection.
+
+    Arguments:
+        img (object): image to be transformed
+        debug (bool): set whether to display processed images at runtime
+        save_proc_img (bool): set whether to save the processed images
+        proc_img_folderpath (str): path to the folder, to which the processed
+            images should be saved
+
+    Returns:
+        object: image with adjusted colors
+    """
+    img_grayed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)      # convert to grayscale
     img_blurred = cv2.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
     img_edged = cv2.Canny(img_blurred, 75, 200)             # apply edge detection
 
@@ -101,7 +133,19 @@ def adjust_color(img, debug=False, save_proc_img=False, proc_img_folderpath=None
 
 @debug_image
 def draw_outline(img, contour, debug=False, save_proc_img=False, proc_img_folderpath=None):
-    """Return an image with added contour layer."""
+    """Return an image with added contour layer.
+
+    Arguments:
+        img (object): image to be transformed
+        contour (object): contour definition
+        debug (bool): set whether to display processed images at runtime
+        save_proc_img (bool): set whether to save the processed images
+        proc_img_folderpath (str): path to the folder, to which the processed
+            images should be saved
+
+    Returns:
+        object: image with detected contour
+    """
     img_outlined = img.copy()
     cv2.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
 
@@ -147,6 +191,10 @@ def transform_image(img, contour, debug=False, save_proc_img=False, proc_img_fol
     Arguments:
         img (object): image to be transformed
         contour (object): contour definition
+        debug (bool): set whether to display processed images at runtime
+        save_proc_img (bool): set whether to save the processed images
+        proc_img_folderpath (str): path to the folder, to which the processed
+            images should be saved
 
     Returns:
         object: transformed image
@@ -271,7 +319,7 @@ def main():
 
 if __name__ == '__main__':
     # Set default options internal usage
-    DEBUG_MODE = True         # set whether to display processed images in runtime
+    DEBUG_MODE = True         # set whether to display processed images at runtime
     SAVE_PROC_IMG = True      # set whether the processed images should be saved
     WRITE_IMG_CONTENT = True  # set whether the recognized content should be written
 
