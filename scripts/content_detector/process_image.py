@@ -22,9 +22,9 @@ from imutils.perspective import four_point_transform
 LOG = True
 
 # Set default paths
-RAW_IMG_FOLDERPATH = r'..\images\receipts'
-PROC_IMG_FOLDERPATH = r'..\images\receipts_processed'
-OUTPUT_FOLDERPATH = r'..\results'
+RAW_IMG_FOLDERPATH = '../../images/receipts'
+PROC_IMG_FOLDERPATH = '../../images/receipts_processed'
+OUTPUT_FOLDERPATH = '../../results'
 
 
 def debug_image(func):
@@ -54,6 +54,7 @@ def debug_image(func):
         if save_proc_img is True:
             # Get output folder path if passed else get default
             proc_img_folderpath = kwargs.get('proc_img_folderpath', PROC_IMG_FOLDERPATH)
+            os.makedirs(proc_img_folderpath, exist_ok=True)
 
             # Save the processed image to a file
             proc_img_filename = proc_img_name_mapper[func.__name__] + '.jpg'
@@ -62,7 +63,7 @@ def debug_image(func):
             cv2.imwrite(proc_img_filepath, proc_img)
 
             if LOG:
-                print(f'Image was saved to file "{proc_img_filepath}"')
+                print(f'Image was saved to file "{os.path.abspath(proc_img_filepath)}"')
 
         return proc_img
 
