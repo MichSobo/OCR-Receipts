@@ -280,7 +280,7 @@ def get_img_content(img_filepath, do_prepare_image=False):
 
 def main():
     # Set path to the raw image
-    raw_img_filename = 'sample1.jpg'
+    raw_img_filename = 'test1.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
     filename, ext = os.path.splitext(raw_img_filename)
 
