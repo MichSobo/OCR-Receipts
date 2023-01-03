@@ -2,12 +2,11 @@
 Code for process_image.py unit testing.
 """
 import os
+import shutil
 import unittest
 
 from scripts.content_detector import process_image
 process_image.LOG = False
-
-CLEANUP = True
 
 TEST_IMG_FILEPATH = 'test_img.jpg'
 
@@ -100,8 +99,12 @@ class TestResizeImage(unittest.TestCase):
         self.file_to_remove = None
 
     def tearDown(self):
-        if self.file_to_remove and CLEANUP is True:
+        if self.file_to_remove:
             os.remove(self.file_to_remove)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree('images')
 
 
 class TestPrepareImage(unittest.TestCase):
@@ -125,11 +128,12 @@ class TestPrepareImage(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Make a directory for storing test images if not exists, refresh content."""
-        os.makedirs(ARBITRARY_PROC_IMG_FOLDERPATH, exist_ok=True)
-
-        for filepath in cls.default_proc_img_filepaths + cls.arbitrary_proc_img_filepaths:
+        for filepath in cls.default_proc_img_filepaths:
             if os.path.isfile(filepath):
                 os.remove(filepath)
+
+        if any([os.path.isfile(fp) for fp in cls.arbitrary_proc_img_filepaths]):
+            shutil.rmtree(ARBITRARY_PROC_IMG_FOLDERPATH)
 
         cls.files_to_remove = None
 
@@ -143,10 +147,9 @@ class TestPrepareImage(unittest.TestCase):
         """test with: save_proc_img default, proc_img_folderpath default"""
         process_image.prepare_image(img)
 
-        self.assertFalse('resized.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertFalse('adjusted color.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertFalse('outlined.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertFalse('transformed.jpg' in os.listdir(self.default_proc_img_folderpath))
+        self.assertTrue(
+            all([not os.path.isfile(fp) for fp in self.default_proc_img_filepaths])
+        )
 
         self.files_to_remove = None
 
@@ -155,10 +158,9 @@ class TestPrepareImage(unittest.TestCase):
         process_image.prepare_image(img,
                                     proc_img_folderpath=ARBITRARY_PROC_IMG_FOLDERPATH)
 
-        self.assertFalse('resized.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertFalse('adjusted color.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertFalse('outlined.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertFalse('transformed.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
+        self.assertTrue(
+            all([not os.path.isfile(fp) for fp in self.arbitrary_proc_img_filepaths])
+        )
 
         self.files_to_remove = None
 
@@ -166,10 +168,9 @@ class TestPrepareImage(unittest.TestCase):
         """test with: save_proc_img True, proc_img_folderpath default"""
         process_image.prepare_image(img, save_proc_img=True)
 
-        self.assertTrue('resized.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertTrue('adjusted color.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertTrue('outlined.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertTrue('transformed.jpg' in os.listdir(self.default_proc_img_folderpath))
+        self.assertTrue(
+            all([os.path.isfile(fp) for fp in self.default_proc_img_filepaths])
+        )
 
         self.files_to_remove = self.default_proc_img_filepaths
 
@@ -179,10 +180,9 @@ class TestPrepareImage(unittest.TestCase):
                                     save_proc_img=True,
                                     proc_img_folderpath=ARBITRARY_PROC_IMG_FOLDERPATH)
 
-        self.assertTrue('resized.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertTrue('adjusted color.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertTrue('outlined.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertTrue('transformed.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
+        self.assertTrue(
+            all([os.path.isfile(fp) for fp in self.arbitrary_proc_img_filepaths])
+        )
 
         self.files_to_remove = self.arbitrary_proc_img_filepaths
 
@@ -190,10 +190,9 @@ class TestPrepareImage(unittest.TestCase):
         """test with: save_proc_img False, proc_img_folderpath default"""
         process_image.prepare_image(img, save_proc_img=False)
 
-        self.assertFalse('resized.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertFalse('adjusted color.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertFalse('outlined.jpg' in os.listdir(self.default_proc_img_folderpath))
-        self.assertFalse('transformed.jpg' in os.listdir(self.default_proc_img_folderpath))
+        self.assertTrue(
+            all([not os.path.isfile(fp) for fp in self.default_proc_img_filepaths])
+        )
 
         self.files_to_remove = None
 
@@ -202,23 +201,23 @@ class TestPrepareImage(unittest.TestCase):
         process_image.prepare_image(img,
                                     save_proc_img=False,
                                     proc_img_folderpath=ARBITRARY_PROC_IMG_FOLDERPATH)
-        self.assertFalse('resized.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertFalse('adjusted color.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertFalse('outlined.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
-        self.assertFalse('transformed.jpg' in os.listdir(ARBITRARY_PROC_IMG_FOLDERPATH))
+
+        self.assertTrue(
+            all([not os.path.isfile(fp) for fp in self.arbitrary_proc_img_filepaths])
+        )
 
         self.files_to_remove = None
 
     def tearDown(self):
         """Remove generated images."""
-        if self.files_to_remove and CLEANUP is True:
+        if self.files_to_remove:
             for filepath in self.files_to_remove:
                 os.remove(filepath)
 
     @classmethod
     def tearDownClass(cls):
         """Remove the directory to store test images."""
-        os.rmdir(ARBITRARY_PROC_IMG_FOLDERPATH)
+        shutil.rmtree('images')
 
 
 class TestRecognizeContent(unittest.TestCase):
@@ -286,14 +285,15 @@ class TestRecognizeContent(unittest.TestCase):
 
 
 class TestGetContent(unittest.TestCase):
-    """Test case for get_img_content()."""
+    """Test case for get_img_content()"""
 
-    output_filepath = r'../../results/test_img/raw_content.txt'
+    output_folderpath = '../../results/test_img'
+    output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
 
     @classmethod
     def setUpClass(cls):
         if os.path.isfile(cls.output_filepath):
-            os.remove(cls.output_filepath)
+            shutil.rmtree(cls.output_folderpath)
 
     def test_case01(self):
         """test with: not existing file"""
@@ -324,6 +324,14 @@ class TestGetContent(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.output_filepath))
 
         os.remove(self.output_filepath)
+
+    def tearDown(self):
+        if os.path.isfile(self.output_filepath):
+            os.remove(self.output_filepath)
+
+    @classmethod
+    def tearDownClass(cls):
+        os.rmdir(cls.output_folderpath)
 
 
 if __name__ == '__main__':
