@@ -2,18 +2,18 @@
 Script for extracting relevant data from text that was recognized based on
 receipt image.
 """
-import re
-import os
 import json
-from pathlib import Path
+import os
+import re
 
 
 # Set input file name
-content_filename = Path('Paragon_2022-08-11_081131_300dpi.txt')
-content_filepath = Path('../results') / content_filename.stem / 'content.txt'
+content_filename = 'Paragon_2022-08-11_081131_300dpi.txt'
+content_filepath = \
+    os.path.join('../../results/Paragon_2022-08-11_081131_300dpi/raw_content.txt')
 
 # Set output folder path
-out_folderpath = content_filepath.parent
+# out_folderpath = content_filepath.parent
 
 
 def preprocess_text(text):
@@ -145,29 +145,29 @@ def get_total(text, value_if_not_recognized='unknown'):
     else:
         return value_if_not_recognized
 
+if __name__ == '__main__':
+    content = {}
 
-content = {}
+    # Read text file
+    with open(content_filepath, 'r', encoding='utf-8') as f:
+        text = f.readlines()
+    print(f'Text content was read from file "{content_filepath}"')
 
-# Read text file
-with open(content_filepath, 'r', encoding='utf-8') as f:
-    text = f.readlines()
-print(f'Text content was read from file "{content_filepath}"')
+    # Extract shop name
+    content['shop'] = get_shop(text)
 
-# Extract shop name
-content['shop'] = get_shop(text)
+    # Replace common wrong characters
+    text = preprocess_text(text)
 
-# Replace common wrong characters
-text = preprocess_text(text)
+    # Define lists for storing products
+    content['products'] = get_products(text)
 
-# Define lists for storing products
-content['products'] = get_products(text)
+    # Extract total cost
+    content['total_sum'] = get_total(text)
 
-# Extract total cost
-content['total_sum'] = get_total(text)
-
-# Write extracted content to json file
-json_content_filename = 'content.json'
-json_content_filepath = out_folderpath / json_content_filename
-with open(json_content_filepath, 'w') as f:
-    json.dump(content, f, indent=4)
-print(f'Processed content was written to file "{json_content_filepath}"')
+    # Write extracted content to json file
+    json_content_filename = 'content.json'
+    json_content_filepath = out_folderpath / json_content_filename
+    with open(json_content_filepath, 'w') as f:
+        json.dump(content, f, indent=4)
+    print(f'Processed content was written to file "{json_content_filepath}"')
