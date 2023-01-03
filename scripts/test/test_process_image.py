@@ -104,7 +104,7 @@ class TestResizeImage(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        shutil.rmtree('images')
+        shutil.rmtree('./images')
 
 
 class TestPrepareImage(unittest.TestCase):
@@ -127,13 +127,12 @@ class TestPrepareImage(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Make a directory for storing test images if not exists, refresh content."""
         for filepath in cls.default_proc_img_filepaths:
             if os.path.isfile(filepath):
                 os.remove(filepath)
 
         if any([os.path.isfile(fp) for fp in cls.arbitrary_proc_img_filepaths]):
-            shutil.rmtree(ARBITRARY_PROC_IMG_FOLDERPATH)
+            shutil.rmtree('./images')
 
         cls.files_to_remove = None
 
@@ -217,7 +216,7 @@ class TestPrepareImage(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """Remove the directory to store test images."""
-        shutil.rmtree('images')
+        shutil.rmtree('./images')
 
 
 class TestRecognizeContent(unittest.TestCase):
@@ -278,16 +277,14 @@ class TestRecognizeContent(unittest.TestCase):
         self.assertFalse(self.filename in os.listdir())
 
     def tearDown(self):
-        try:
+        if os.path.isfile(self.filename):
             os.remove(self.filename)
-        except FileNotFoundError:
-            pass
 
 
 class TestGetContent(unittest.TestCase):
     """Test case for get_img_content()"""
 
-    output_folderpath = '../../results/test_img'
+    output_folderpath = './../../results/test_img'
     output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
 
     @classmethod

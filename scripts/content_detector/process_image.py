@@ -13,6 +13,7 @@ Content retrieving procedure:
 """
 import os
 import functools
+import shutil
 
 import cv2
 import imutils
@@ -22,10 +23,10 @@ from imutils.perspective import four_point_transform
 LOG = True
 
 # Set default paths
-RAW_IMG_FOLDERPATH = '../../images/receipts'
-PROC_IMG_FOLDERPATH = '../../images/receipts_processed'
-OUTPUT_FOLDERPATH = '../../results'
-
+ROOT_FOLDERPATH = os.path.join(os.path.dirname(__file__), '../..')
+RAW_IMG_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'images/receipts')
+PROC_IMG_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'images/receipts_processed')
+OUTPUT_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'results')
 
 def debug_image(func):
     """Function decorator for debugging purposes."""
@@ -73,12 +74,12 @@ def debug_image(func):
 def read_image(path):
     """Return an image read from path to the file."""
     if not os.path.isfile(path):
-        raise FileNotFoundError(f'No such file: "{path}"')
+        raise FileNotFoundError(f'No such file: "{os.path.abspath(path)}"')
 
     img = cv2.imread(path)
 
     if LOG:
-        print(f'Image was read from file "{path}"')
+        print(f'Image was read from file "{os.path.abspath(path)}"')
 
     return img
 
@@ -245,7 +246,7 @@ def recognize_content(img,
             f.write(text)
 
         if LOG is True:
-            print(f'Recognized image content was written to file "{content_path}"')
+            print(f'Recognized image content was written to file "{os.path.abspath(content_path)}"')
 
     return text
 
@@ -281,7 +282,7 @@ def get_img_content(img_filepath, do_prepare_image=False):
 
 def main():
     # Set path to the raw image
-    raw_img_filename = 'test1.jpg'
+    raw_img_filename = 'Paragon_2022-08-11_081131_300dpi.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
     filename, ext = os.path.splitext(raw_img_filename)
 
