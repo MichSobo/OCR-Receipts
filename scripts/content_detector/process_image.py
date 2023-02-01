@@ -219,6 +219,14 @@ def prepare_image(img, **kwargs):
     return img_transformed
 
 
+def binarize_image(img, blur=(1, 1), threshold=185):
+    """Return a binarized image to enhance content recognition."""
+    blurred = cv2.GaussianBlur(img, blur, 0)
+    binarized = cv2.threshold(blurred, threshold, 255, cv2.THRESH_BINARY)[1]
+
+    return binarized
+
+
 def recognize_content(img,
                       write_content=True,
                       content_path='raw_content.txt'):
@@ -251,13 +259,15 @@ def recognize_content(img,
     return text
 
 
-def get_img_content(img_filepath, do_prepare_image=False):
+def get_img_content(img_filepath, do_prepare_image=False, do_binarize_img=True):
     """Read and process an image. Return recognized text content.
 
     Arguments:
         img_filepath (str): path to the file with image to be processed
         do_prepare_image (bool): set whether to perform image preparation from
             prepare_image() (default False)
+        do_binarize_img (bool): set whether to perform image binarization
+            (default False)
 
     Returns:
         list[str]: list of string elements, where each element corresponds to
@@ -266,6 +276,7 @@ def get_img_content(img_filepath, do_prepare_image=False):
     # Get image
     raw_img = read_image(img_filepath)
     img = prepare_image(raw_img) if do_prepare_image else raw_img
+    img = binarize_image(img) if do_binarize_img else img
 
     # Set output directory
     filename = os.path.basename(img_filepath)
