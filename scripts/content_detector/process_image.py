@@ -14,7 +14,7 @@ Content retrieving procedure:
 import os
 import functools
 
-import cv2
+import cv2 as cv
 import imutils
 import pytesseract
 from imutils.perspective import four_point_transform
@@ -48,8 +48,8 @@ def debug_image(func):
         if debug_mode is True:
             # Show the processed image during function execution
             proc_img_name = proc_img_name_mapper[func.__name__].capitalize()
-            cv2.imshow(proc_img_name, proc_img)
-            cv2.waitKey(0)
+            cv.imshow(proc_img_name, proc_img)
+            cv.waitKey(0)
 
         if save_proc_img is True:
             # Get output folder path if passed else get default
@@ -60,7 +60,7 @@ def debug_image(func):
             proc_img_filename = proc_img_name_mapper[func.__name__] + '.jpg'
             proc_img_filepath = os.path.join(proc_img_folderpath, proc_img_filename)
 
-            cv2.imwrite(proc_img_filepath, proc_img)
+            cv.imwrite(proc_img_filepath, proc_img)
 
             if LOG:
                 print(f'Image was saved to file "{os.path.abspath(proc_img_filepath)}"')
@@ -75,7 +75,7 @@ def read_image(path):
     if not os.path.isfile(path):
         raise FileNotFoundError(f'No such file: "{os.path.abspath(path)}"')
 
-    img = cv2.imread(path)
+    img = cv.imread(path)
 
     if LOG:
         print(f'Image was read from file "{os.path.abspath(path)}"')
@@ -125,9 +125,9 @@ def adjust_color(img, debug=False, save_proc_img=False, proc_img_folderpath=None
     Returns:
         object: image with adjusted colors
     """
-    img_grayed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)      # convert to grayscale
-    img_blurred = cv2.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
-    img_edged = cv2.Canny(img_blurred, 75, 200)             # apply edge detection
+    img_grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)      # convert to grayscale
+    img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
+    img_edged = cv.Canny(img_blurred, 75, 200)             # apply edge detection
 
     return img_edged
 
@@ -148,7 +148,7 @@ def draw_outline(img, contour, debug=False, save_proc_img=False, proc_img_folder
         object: image with detected contour
     """
     img_outlined = img.copy()
-    cv2.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
+    cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
 
     return img_outlined
 
@@ -156,21 +156,21 @@ def draw_outline(img, contour, debug=False, save_proc_img=False, proc_img_folder
 def get_contour(img):
     """Return a list of contours found in image's edge map."""
     # Find contours
-    contours = cv2.findContours(img,
-                                cv2.RETR_EXTERNAL,
-                                cv2.CHAIN_APPROX_SIMPLE)
+    contours = cv.findContours(img,
+                                cv.RETR_EXTERNAL,
+                                cv.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
 
     # Sort contours according to their area size
-    contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    contours = sorted(contours, key=cv.contourArea, reverse=True)
 
     # Initialize a variable to store the contour
     contour = None
 
     for c in contours:
         # Approximate the contour by reducing the number of points
-        peri = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+        peri = cv.arcLength(c, True)
+        approx = cv.approxPolyDP(c, 0.02 * peri, True)
 
         # If the approximated contour has 4 points...
         if len(approx) == 4:
@@ -220,8 +220,8 @@ def prepare_image(img, **kwargs):
 
 def binarize_image(img, blur=(1, 1), threshold=185):
     """Return a binarized image to enhance content recognition."""
-    blurred = cv2.GaussianBlur(img, blur, 0)
-    binarized = cv2.threshold(blurred, threshold, 255, cv2.THRESH_BINARY)[1]
+    blurred = cv.GaussianBlur(img, blur, 0)
+    binarized = cv.threshold(blurred, threshold, 255, cv.THRESH_BINARY)[1]
 
     return binarized
 
@@ -244,7 +244,7 @@ def recognize_content(img,
             line of the recognized content
     """
     # Execute OCR
-    text = pytesseract.image_to_string(cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
+    text = pytesseract.image_to_string(cv.cvtColor(img, cv.COLOR_BGR2RGB),
                                        config='--psm 4')
 
     if write_content is True:
