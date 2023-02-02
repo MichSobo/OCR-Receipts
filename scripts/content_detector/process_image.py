@@ -13,7 +13,6 @@ Content retrieving procedure:
 """
 import os
 import functools
-import shutil
 
 import cv2
 import imutils
@@ -23,7 +22,7 @@ from imutils.perspective import four_point_transform
 LOG = True
 
 # Set default paths
-ROOT_FOLDERPATH = os.path.join(os.path.dirname(__file__), '../..')
+ROOT_FOLDERPATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 RAW_IMG_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'images/receipts')
 PROC_IMG_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'images/receipts_processed')
 OUTPUT_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'results')
