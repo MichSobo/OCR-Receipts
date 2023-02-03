@@ -11,8 +11,10 @@ Content retrieving procedure:
 3. Use OCR (Tesseract engine with --psm 4) on the receipt to get the content
 4. Save the content to file
 """
+import argparse
 import os
 import functools
+import sys
 
 import cv2 as cv
 import imutils
@@ -226,47 +228,32 @@ def binarize_image(img, blur=(1, 1), threshold=185):
     return binarized
 
 
-def recognize_content(img,
-                      write_content=True,
-                      content_path='raw_content.txt'):
-    """Execute OCR and return recognized content.
-
-    Arguments:
-        img (object): image for content recognition
-        write_content (bool): set whether to write the recognized content
-            to a text file (default True)
-        content_path (str): path of the file to which the recognized content
-            will be saved; if left blank, it will be saved in working directory
-            as 'raw_content.txt'
-
-    Returns:
-        list[str]: list of strings, where each string corresponds to a single
-            line of the recognized content
-    """
-    # Execute OCR
+def recognize_content(img):
+    """Execute OCR and return recognized content."""
     text = pytesseract.image_to_string(cv.cvtColor(img, cv.COLOR_BGR2RGB),
                                        config='--psm 4')
-
-    if write_content is True:
-        # Write recognized content to file
-        with open(content_path, 'w', encoding='utf-8') as f:
-            f.write(text)
-
-        if LOG is True:
-            print(f'Recognized image content was written to file "{os.path.abspath(content_path)}"')
 
     return text
 
 
-def get_img_content(img_filepath, do_prepare_image=False, do_binarize_img=True):
+def get_img_content(img_filepath,
+                    prepare_img=False,
+                    binarize_img=True,
+                    write_content=True,
+                    output_filepath='raw_content.txt'):
     """Read and process an image. Return recognized text content.
 
     Arguments:
         img_filepath (str): path to the file with image to be processed
-        do_prepare_image (bool): set whether to perform image preparation from
+        prepare_img (bool): set whether to perform image preparation from
             prepare_image() (default False)
-        do_binarize_img (bool): set whether to perform image binarization
+        binarize_img (bool): set whether to perform image binarization
             (default False)
+        write_content (bool): set whether to write the recognized content
+            to a text file (default True)
+        output_filepath (str): path of the file to which the recognized content
+            will be saved; if left blank, it will be saved in working directory
+            as 'raw_content.txt'
 
     Returns:
         list[str]: list of string elements, where each element corresponds to
@@ -274,8 +261,8 @@ def get_img_content(img_filepath, do_prepare_image=False, do_binarize_img=True):
     """
     # Get image
     raw_img = read_image(img_filepath)
-    img = prepare_image(raw_img) if do_prepare_image else raw_img
-    img = binarize_image(img) if do_binarize_img else img
+    img = prepare_img(raw_img) if prepare_img else raw_img
+    img = binarize_image(img) if binarize_img else img
 
     # Set output directory
     filename = os.path.basename(img_filepath)
@@ -283,9 +270,21 @@ def get_img_content(img_filepath, do_prepare_image=False, do_binarize_img=True):
     output_folderpath = os.path.join(OUTPUT_FOLDERPATH, filename)
     os.makedirs(output_folderpath, exist_ok=True)
 
+    # Recognize content
+    content = recognize_content(img)
+
     # Write content to file
-    output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
-    content = recognize_content(img, content_path=output_filepath)
+    if output_filepath == '':
+        output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
+
+    if write_content is True:
+        # Write recognized content to file
+        with open(output_filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+
+        if LOG is True:
+            print(f'Recognized image content was written to file '
+                  f'"{os.path.abspath(output_filepath)}"')
 
     return content
 
@@ -306,9 +305,36 @@ if __name__ == '__main__':
     SAVE_PROC_IMG = True      # set whether the processed images should be saved
     WRITE_IMG_CONTENT = True  # set whether the recognized content should be written
 
-    main()
+    if len(sys.argv) > 1:
+        # Set command line argument parsing
+        description = 'This program performs OCR on an input image and writes it.'
+        parser = argparse.ArgumentParser(description=description)
+
+        parser.add_argument('-i', '--image', required=True,
+                            help='path to the input image')
+        parser.add_argument('-o', '--output', required=False,
+                            default='raw_content.txt',
+                            help='path to the output file')
+        parser.add_argument('-d', '--debug', action='store_true',
+                            help='specify if interim images should be shown')
+
+        args = parser.parse_args()
+
+        raw_img_filepath = args.image
+        output_filepath = args.output
+
+        if args.debug is True:
+            DEBUG_MODE = True
+
+        get_img_content(raw_img_filepath, content_path=output_filepath)
+
+    else:
+        main()
 else:
     # Set default options for external usage
     DEBUG_MODE = False
     SAVE_PROC_IMG = False
     WRITE_IMG_CONTENT = False
+
+
+
