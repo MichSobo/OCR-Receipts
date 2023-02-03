@@ -294,37 +294,8 @@ def main():
     # Set path to the raw image
     raw_img_filename = 'Paragon_2022-08-11_081131_300dpi.jpg'
     raw_img_filepath = os.path.join(RAW_IMG_FOLDERPATH, raw_img_filename)
-    filename, ext = os.path.splitext(raw_img_filename)
 
-    # Read image
-    raw_img = read_image(raw_img_filepath)
-
-    if SAVE_PROC_IMG:
-        # Set output folder for processed images
-        global PROC_IMG_FOLDERPATH
-        PROC_IMG_FOLDERPATH = os.path.join(PROC_IMG_FOLDERPATH, filename)
-
-        # Create the output folder
-        os.makedirs(PROC_IMG_FOLDERPATH, exist_ok=True)
-
-    prepared_img = prepare_image(raw_img)
-
-    # Recognize image content and write it to a file
-    if WRITE_IMG_CONTENT:
-        # Set output folder for recognized content
-        global OUTPUT_FOLDERPATH
-        OUTPUT_FOLDERPATH = os.path.join(OUTPUT_FOLDERPATH, filename)
-
-        # Create the output folder
-        os.makedirs(OUTPUT_FOLDERPATH, exist_ok=True)
-
-        raw_content_filepath = os.path.join(OUTPUT_FOLDERPATH, 'raw_content.txt')
-    else:
-        raw_content_filepath = None
-
-    raw_content = recognize_content(prepared_img,
-                                    write_content=WRITE_IMG_CONTENT,
-                                    content_path=raw_content_filepath)
+    raw_content = get_img_content(raw_img_filepath)
 
     return raw_content
 
