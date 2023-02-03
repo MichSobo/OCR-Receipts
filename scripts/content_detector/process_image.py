@@ -29,226 +29,226 @@ RAW_IMG_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'images/receipts')
 PROC_IMG_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'images/receipts_processed')
 OUTPUT_FOLDERPATH = os.path.join(ROOT_FOLDERPATH, 'results')
 
-def debug_image(func):
-    """Function decorator for debugging purposes."""
-    proc_img_name_mapper = {
-        'resize_image': 'resized',
-        'adjust_color': 'adjusted color',
-        'draw_outline': 'outlined',
-        'transform_image': 'transformed',
-    }
 
-    @functools.wraps(func)
-    def wrapper_debug_image(img, *args, **kwargs):
-        # Get the processed image by running appropriate function
-        proc_img = func(img, *args, **kwargs)
+class Image:
 
-        # Get kwargs if passed else get default
-        debug_mode = kwargs.get('debug_mode', DEBUG_MODE)
-        save_proc_img = kwargs.get('save_proc_img', SAVE_PROC_IMG)
+    def __init__(self, img, name='Image'):
+        self.img = img
+        self.name = name
 
-        if debug_mode is True:
-            # Show the processed image during function execution
-            proc_img_name = proc_img_name_mapper[func.__name__].capitalize()
-            cv.imshow(proc_img_name, proc_img)
-            cv.waitKey(0)
+    def __repr__(self):
+        return f'Image({self.name})'
 
-        if save_proc_img is True:
-            # Get output folder path if passed else get default
-            proc_img_folderpath = kwargs.get('proc_img_folderpath', PROC_IMG_FOLDERPATH)
-            os.makedirs(proc_img_folderpath, exist_ok=True)
+    @classmethod
+    def from_path(cls, path):
+        """Initialize Image by reading an image from a path."""
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f'No such file: "{os.path.abspath(path)}"')
 
-            # Save the processed image to a file
-            proc_img_filename = proc_img_name_mapper[func.__name__] + '.jpg'
-            proc_img_filepath = os.path.join(proc_img_folderpath, proc_img_filename)
+        img = cv.imread(path)
 
-            cv.imwrite(proc_img_filepath, proc_img)
+        if LOG:
+            print(f'Image was read from file "{os.path.abspath(path)}"')
 
-            if LOG:
-                print(f'Image was saved to file "{os.path.abspath(proc_img_filepath)}"')
+        return cls(img)
 
-        return proc_img
+    def show(self):
+        cv.imshow(self.name, self.img)
+        cv.waitKey(0)
 
-    return wrapper_debug_image
+    def debug(func):
+        @functools.wraps(func)
+        def wrapper_debug(self, *args, **kwargs):
+            # Get processed image
+            proc_img = func(self, *args, **kwargs)
 
+            # Get kwargs if passed else get default
+            do_debug = kwargs.get('debug', DEBUG_MODE)
+            do_save_proc_img = kwargs.get('save', SAVE_PROC_IMG)
 
-def read_image(path):
-    """Return an image read from path to the file."""
-    if not os.path.isfile(path):
-        raise FileNotFoundError(f'No such file: "{os.path.abspath(path)}"')
+            if do_debug is True:
+                proc_img.show()
 
-    img = cv.imread(path)
+            if do_save_proc_img is True:
+                # Get output folder path if passed else get default
+                proc_img_folderpath = kwargs.get('proc_img_folderpath',
+                                                 PROC_IMG_FOLDERPATH)
+                os.makedirs(proc_img_folderpath, exist_ok=True)
 
-    if LOG:
-        print(f'Image was read from file "{os.path.abspath(path)}"')
+                # Save the processed image
+                proc_img_filename = proc_img.name + '.jpg'
+                proc_img_filepath = os.path.join(proc_img_folderpath,
+                                                 proc_img_filename)
+                cv.imwrite(proc_img_filepath, proc_img.img)
 
-    return img
+            return proc_img
 
+        return wrapper_debug
 
-@debug_image
-def resize_image(img, debug=False, save_proc_img=False, proc_img_folderpath=None):
-    """Return a resized image maintaining its aspect ratio.
+    @debug
+    def resize(self, debug=False, save=False, output_folderpath=''):
+        """Resize the image maintaining its aspect ratio.
 
-    Arguments:
-        img (object): image to be transformed
-        debug (bool): set whether to display processed images at runtime
-        save_proc_img (bool): set whether to save the processed images
-        proc_img_folderpath (str): path to the folder, to which the processed
-            images should be saved
+        Arguments:
+            debug (bool): set whether to display processed images at runtime
+            save (bool): set whether to save the processed images
+            output_folderpath (str): path to the folder, to which the processed
+                images should be saved
 
-    Returns:
-        object: resized image
-    """
+        Returns:
+            object: resized image
+        """
 
-    def get_ratio(first, second):
-        """Return a ratio of two image sizes."""
-        return float(first.shape[1]) / float(second.shape[1])
+        def get_ratio(first, second):
+            """Return a ratio of two image sizes."""
+            return float(first.shape[1]) / float(second.shape[1])
 
-    img_resized = imutils.resize(img, width=500)
+        # Get resized image
+        img_resized = imutils.resize(self.img, width=500)
+        img_resized = self.__class__(img_resized)
+        img_resized.name = 'Resized'
 
-    # Get scaling ratio for further processing
-    global ratio
-    ratio = get_ratio(img, img_resized)
+        # Set ratio
+        global ratio
+        ratio = get_ratio(self.img, img_resized.img)
 
-    return img_resized
+        return img_resized
 
+    @debug
+    def adjust_color(self, debug=False, save=False, output_folderpath=''):
+        """Return an image with adjusted color to enhance contour detection.
 
-@debug_image
-def adjust_color(img, debug=False, save_proc_img=False, proc_img_folderpath=None):
-    """Return an image with adjusted color to enhance contour detection.
+        Arguments:
+            debug (bool): set whether to display processed images at runtime
+            save (bool): set whether to save the processed images
+            output_folderpath (str): path to the folder, to which the processed
+                images should be saved
 
-    Arguments:
-        img (object): image to be transformed
-        debug (bool): set whether to display processed images at runtime
-        save_proc_img (bool): set whether to save the processed images
-        proc_img_folderpath (str): path to the folder, to which the processed
-            images should be saved
+        Returns:
+            object: image with adjusted colors
+        """
+        img_grayed = cv.cvtColor(self.img, cv.COLOR_BGR2GRAY)  # convert to grayscale
+        img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
+        img_edged = cv.Canny(img_blurred, 75, 200)             # apply edge detection
+        img_edged = self.__class__(img_edged)
+        img_edged.name = 'Edged'
 
-    Returns:
-        object: image with adjusted colors
-    """
-    img_grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)      # convert to grayscale
-    img_blurred = cv.GaussianBlur(img_grayed, (5, 5,), 0)  # blur using Gaussian kernel
-    img_edged = cv.Canny(img_blurred, 75, 200)             # apply edge detection
+        return img_edged
 
-    return img_edged
+    @debug
+    def outline(self, contour,
+                debug=False, save=False, output_folderpath=''):
+        """Return an image with added contour layer.
 
+        Arguments:
+            contour (object): contour definition
+            debug (bool): set whether to display processed images at runtime
+            save (bool): set whether to save the processed images
+            output_folderpath (str): path to the folder, to which the processed
+                images should be saved
 
-@debug_image
-def draw_outline(img, contour, debug=False, save_proc_img=False, proc_img_folderpath=None):
-    """Return an image with added contour layer.
+        Returns:
+            object: image with detected contour
+        """
+        img_outlined = self.img.copy()
+        cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
 
-    Arguments:
-        img (object): image to be transformed
-        contour (object): contour definition
-        debug (bool): set whether to display processed images at runtime
-        save_proc_img (bool): set whether to save the processed images
-        proc_img_folderpath (str): path to the folder, to which the processed
-            images should be saved
+        img_outlined = self.__class__(img_outlined)
+        img_outlined.name = 'Outlined'
 
-    Returns:
-        object: image with detected contour
-    """
-    img_outlined = img.copy()
-    cv.drawContours(img_outlined, [contour], -1, (0, 255, 0), 2)
+        return img_outlined
 
-    return img_outlined
+    @debug
+    def transform(self, contour, debug=False, save=False, output_folderpath=''):
+        """Return an image after four-point perspective transformation.
 
+        Arguments:
+            contour (object): contour definition
+            debug (bool): set whether to display processed images at runtime
+            save (bool): set whether to save the processed images
+            output_folderpath (str): path to the folder, to which the processed
+                images will be saved
 
-def get_contour(img):
-    """Return a list of contours found in image's edge map."""
-    # Find contours
-    contours = cv.findContours(img,
-                                cv.RETR_EXTERNAL,
-                                cv.CHAIN_APPROX_SIMPLE)
-    contours = imutils.grab_contours(contours)
+        Returns:
+            object: transformed image
+        """
+        transformed_img = four_point_transform(self.img,
+                                               contour.reshape(4, 2) * ratio)
+        transformed_img = self.__class__(transformed_img)
+        transformed_img.name = 'Transformed'
 
-    # Sort contours according to their area size
-    contours = sorted(contours, key=cv.contourArea, reverse=True)
+        return transformed_img
 
-    # Initialize a variable to store the contour
-    contour = None
+    def prepare(self, debug=False, save=False, output_folderpath=''):
+        """Return an image prepared to enhance content recognition."""
+        args = (debug, save, output_folderpath)
 
-    for c in contours:
-        # Approximate the contour by reducing the number of points
-        peri = cv.arcLength(c, True)
-        approx = cv.approxPolyDP(c, 0.02 * peri, True)
+        img_resized = self.resize(*args)
+        img_edged = img_resized.adjust_color(*args)
 
-        # If the approximated contour has 4 points...
-        if len(approx) == 4:
-            # ...we can assume it's the receipt's outline
-            contour = approx
-            break
+        contour = img_edged.get_contour()
 
-    if contour is None:
-        raise Exception('Could not find proper receipt contours. '
-                        'Review the input image and try again.')
+        img_outlined = img_resized.outline(contour, *args)
+        img_transformed = self.transform(contour, *args)
 
-    return contour
+        return img_transformed
 
+    @debug
+    def binarize(self, blur=(1, 1), threshold=185,
+                 debug=False, save=False, output_folderpath=''):
+        """Return a binarized image to enhance content recognition."""
+        blurred = cv.GaussianBlur(self.img, blur, 0)
+        binarized = cv.threshold(blurred, threshold, 255, cv.THRESH_BINARY)[1]
 
-@debug_image
-def transform_image(img, contour, debug=False, save_proc_img=False, proc_img_folderpath=None):
-    """Return an image after four-point perspective transformation.
+        binarized = self.__class__(binarized)
+        binarized.name = 'Binarized'
 
-    Arguments:
-        img (object): image to be transformed
-        contour (object): contour definition
-        debug (bool): set whether to display processed images at runtime
-        save_proc_img (bool): set whether to save the processed images
-        proc_img_folderpath (str): path to the folder, to which the processed
-            images should be saved
+        return binarized
 
-    Returns:
-        object: transformed image
-    """
-    transformed_img = four_point_transform(img, contour.reshape(4, 2) * ratio)
+    def get_content(self, save=True, output_filepath='raw_content.txt'):
+        """Execute OCR and return recognized content.
 
-    return transformed_img
+        Arguments:
+            save (bool): set whether to save the recognized content to a file
+                (default True)
+            output_filepath (str): path to the output file (default raw_content.txt)
+        """
+        content = pytesseract.image_to_string(
+            cv.cvtColor(self.img, cv.COLOR_BGR2RGB), config='--psm 4')
 
+        if save is True:
+            # Write recognized content to file
+            with open(output_filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
 
-def prepare_image(img, **kwargs):
-    """Return an image prepared to enhance content recognition."""
-    img_resized = resize_image(img, **kwargs)
-    img_edged = adjust_color(img_resized, **kwargs)
+            if LOG is True:
+                print(f'Recognized image content was written to file '
+                      f'"{os.path.abspath(output_filepath)}"')
 
-    contour = get_contour(img_edged)
-    img_outlined = draw_outline(img_resized, contour, **kwargs)
-
-    img_transformed = transform_image(img, contour, **kwargs)
-
-    return img_transformed
-
-
-def binarize_image(img, blur=(1, 1), threshold=185):
-    """Return a binarized image to enhance content recognition."""
-    blurred = cv.GaussianBlur(img, blur, 0)
-    binarized = cv.threshold(blurred, threshold, 255, cv.THRESH_BINARY)[1]
-
-    return binarized
-
-
-def recognize_content(img):
-    """Execute OCR and return recognized content."""
-    text = pytesseract.image_to_string(cv.cvtColor(img, cv.COLOR_BGR2RGB),
-                                       config='--psm 4')
-
-    return text
+        return content
 
 
 def get_img_content(img_filepath,
+                    debug=False,
                     prepare_img=False,
                     binarize_img=True,
+                    save_proc_imgs=False,
+                    proc_imgs_folderpath='',
                     write_content=True,
-                    output_filepath='raw_content.txt'):
+                    output_filepath=''):
     """Read and process an image. Return recognized text content.
 
     Arguments:
         img_filepath (str): path to the file with image to be processed
+        debug (bool): set whether to display processed images at runtime
         prepare_img (bool): set whether to perform image preparation from
             prepare_image() (default False)
         binarize_img (bool): set whether to perform image binarization
             (default False)
+        save_proc_imgs (bool): set whether to save the processed images
+            (default False)
+        proc_imgs_folderpath (str): path to the folder, to which the processed
+            images will be saved
         write_content (bool): set whether to write the recognized content
             to a text file (default True)
         output_filepath (str): path of the file to which the recognized content
@@ -259,10 +259,12 @@ def get_img_content(img_filepath,
         list[str]: list of string elements, where each element corresponds to
             a single line of recognized content
     """
+    args = (debug, save_proc_imgs, proc_imgs_folderpath)
+
     # Get image
-    raw_img = read_image(img_filepath)
-    img = prepare_img(raw_img) if prepare_img else raw_img
-    img = binarize_image(img) if binarize_img else img
+    raw_img = Image.from_path(img_filepath)
+    img = raw_img.prepare(*args) if prepare_img else raw_img
+    img = img.binarize() if binarize_img else img
 
     # Set output directory
     filename = os.path.basename(img_filepath)
@@ -270,21 +272,11 @@ def get_img_content(img_filepath,
     output_folderpath = os.path.join(OUTPUT_FOLDERPATH, filename)
     os.makedirs(output_folderpath, exist_ok=True)
 
-    # Recognize content
-    content = recognize_content(img)
-
-    # Write content to file
-    if output_filepath == '':
+    if write_content is True and output_filepath == '':
         output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
 
-    if write_content is True:
-        # Write recognized content to file
-        with open(output_filepath, 'w', encoding='utf-8') as f:
-            f.write(content)
-
-        if LOG is True:
-            print(f'Recognized image content was written to file '
-                  f'"{os.path.abspath(output_filepath)}"')
+    # Recognize content
+    content = img.get_content(write_content, output_filepath)
 
     return content
 
@@ -326,7 +318,7 @@ if __name__ == '__main__':
         if args.debug is True:
             DEBUG_MODE = True
 
-        get_img_content(raw_img_filepath, content_path=output_filepath)
+        get_img_content(raw_img_filepath, output_filepath=output_filepath)
 
     else:
         main()

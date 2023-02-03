@@ -19,6 +19,13 @@ def setUpModule():
     img = process_image.read_image(TEST_IMG_FILEPATH)
 
 
+class TestImage(unittest.TestCase):
+    """Test case for Image class"""
+
+    def test_read_image(self):
+        pass
+
+
 class TestReadImage(unittest.TestCase):
     """Test case for read_image()"""
 
