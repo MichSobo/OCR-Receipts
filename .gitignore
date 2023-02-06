@@ -152,7 +152,7 @@ cython_debug/
 .idea/
 
 # Project images
-images/
+images/check
 
 # Project results
-results/
+# results/
