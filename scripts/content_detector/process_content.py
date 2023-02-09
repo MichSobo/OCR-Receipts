@@ -147,7 +147,6 @@ def string_to_float(string, log=True, item_string=None, do_correct=True):
         return value
 
 
-
 def get_item(text, log=True, do_correct=True):
     """Return a dictionary with item properties."""
     result = ITEM_REGEX.match(text)
@@ -226,60 +225,6 @@ def get_items(text, log=True, do_correct=True, write_raw=True, write_processed=T
 
         # Add item to list of items
         items.append(item)
-
-        """
-        # Match the first element in the list - item
-        result = ITEM_REGEX.match(line[0])
-                
-        if result:
-            item = {
-                'name': result.group(1),
-                'qty': QTY_PRICE_REGEX.sub('.', result.group(2)),
-                'unit_price': QTY_PRICE_REGEX.sub('.', result.group(4)),
-                'total_price': QTY_PRICE_REGEX.sub('.', result.group(5))
-            }
-
-            if len(line) > 1:
-                # Get discount
-                discount = DISCOUNT_REGEX.search(line[1]).group(1)
-                discount = QTY_PRICE_REGEX.sub('.', discount)
-
-                # Get total price with discount
-                final_price = PRICE_REGEX.match(line[2]).group()
-                final_price = QTY_PRICE_REGEX.sub('.', final_price)
-            else:
-                discount = None
-                final_price = item['total_price']
-
-            item['total_discount'] = discount
-            item['total_price_with_discount'] = final_price
-
-            # Convert to numeric
-            for key in list(item.keys())[1:]:
-                try:
-                    item[key] = float(item[key])
-                except ValueError as e:
-                    print(f'\nError occurred for item: {line}')
-                    print(e)
-
-                    # Set correct value
-                    while True:
-                        try:
-                            value = float(input('Enter correct value: '))
-                        except ValueError:
-                            print('Wrong value! Enter correct number!')
-                        else:
-                            item[key] = value
-                            break
-                except TypeError as e:
-                    if item[key] is None:
-                        pass
-                    else:
-                        raise TypeError(e)
-
-            # Add item to list
-            items.append(item)
-        """
 
     return items
 
