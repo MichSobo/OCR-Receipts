@@ -245,24 +245,35 @@ def get_total_sum(text, value_if_not_recognized=False):
 
     if match:
         return string_to_float(match.group(1))
-        # return float(match.group(1))
     else:
         return value_if_not_recognized
 
 
-def main():
-    # Set default paths
-    ROOT_FOLDERPATH = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '../..'))
+def get_extracted_content(input_filepath,
+                          log=True,
+                          save=True,
+                          output_filepath='extracted_content.json'):
+    """Return a dictionary with extracted content.
 
-    # Set path to raw content
-    content_folderpath = 'results/Paragon_2022-08-11_081131_300dpi'
-    content_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, 'raw_content.txt')
+    Arguments:
+        input_filepath (str): path
+        log (bool): set whether to print log messages (default True)
+        save (bool): set whether to save the extracted content to a JSON file
+            (default True)
+        output_filepath (str): path to the output file
+            (default extracted_content.txt)
 
+    Return:
+        dict: dictionary with extracted properties, where key -> property and
+            value -> property values
+    """
     # Read raw content
-    with open(content_filepath, encoding='utf-8') as f:
+    with open(input_filepath, encoding='utf-8') as f:
         raw_content = f.read()
-    print(f'Raw content was read from file "{os.path.abspath(content_filepath)}"')
+
+    if log:
+        path = os.path.abspath(input_filepath)
+        print(f'Raw content was read from file "{path}"')
 
     # Get the main body of the receipt
     raw_content_main = raw_content.split('PARAGON FISKALNY\n')[1]
@@ -274,9 +285,7 @@ def main():
     shop_name = get_shop_name(raw_content)
 
     # Get items
-    items = get_items(content,
-                      log=True,
-                      do_correct=False)
+    items = get_items(content, log=True, do_correct=False)
 
     # Get total sum
     total_sum = get_total_sum(raw_content_main)
@@ -288,11 +297,33 @@ def main():
         'total_sum': total_sum
     }
 
-    # Write extracted content to JSON file
+    if save is True:
+        # Write recognized content to file
+        with open(output_filepath, 'w', encoding='utf-8') as f:
+            json.dump(extracted_content, f, indent=4)
+
+        if log is True:
+            print(f'Recognized image content was written to file '
+                  f'"{os.path.abspath(output_filepath)}"')
+
+    return extracted_content
+
+
+def main():
+    # Set default paths
+    ROOT_FOLDERPATH = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../..'))
+
+    # Set path to raw content
+    content_folderpath = 'results/Paragon_2022-08-11_081131_300dpi'
+    content_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, 'raw_content.txt')
+
+    # Get extracted content
     output_filename = 'extracted_content.json'
     output_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, output_filename)
-    with open(output_filepath, 'w') as f:
-        json.dump(extracted_content, f, indent=4)
+    extracted_content = get_extracted_content(content_filepath,
+                                              output_filepath=output_filepath)
+
 
 if __name__ == '__main__':
     main()
