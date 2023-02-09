@@ -292,6 +292,7 @@ def get_extracted_content(input_filepath,
 
     # Set result dictionary
     extracted_content = {
+        'content_filepath': input_filepath,
         'shop_name': shop_name,
         'items': items,
         'total_sum': total_sum
@@ -315,7 +316,7 @@ def main():
         os.path.join(os.path.dirname(__file__), '../..'))
 
     # Set path to raw content
-    content_folderpath = 'results/Paragon_2022-08-11_081131_300dpi'
+    content_folderpath = os.path.join('results', 'Paragon_2022-08-11_081131_300dpi')
     content_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, 'raw_content.txt')
 
     # Get extracted content
