@@ -1,5 +1,5 @@
 {
-    "content_filename": "C:\\Users\\Michal\\Documents\\GitHub\\OCR-Receipts\\results\\Paragon_2022-08-11_081131_300dpi\\raw_content.txt",
+    "content_filepath": "C:\\Users\\Michal\\Documents\\GitHub\\OCR-Receipts\\results\\Paragon_2022-08-11_081131_300dpi\\raw_content.txt",
     "shop_name": "Biedronka",
     "items": [
         {
@@ -8,7 +8,7 @@
             "unit_price": 3.99,
             "total_price": 3.99,
             "total_discount": null,
-            "total_price_with_discount": 3.99
+            "final_price": 3.99
         },
         {
             "name": "Sos Madera 250nt",
@@ -16,7 +16,7 @@
             "unit_price": 3.49,
             "total_price": 3.49,
             "total_discount": null,
-            "total_price_with_discount": 3.49
+            "final_price": 3.49
         },
         {
             "name": "PtNabtyszczFinishd00",
@@ -24,7 +24,7 @@
             "unit_price": 13.99,
             "total_price": 13.99,
             "total_discount": null,
-            "total_price_with_discount": 13.99
+            "final_price": 13.99
         },
         {
             "name": "Sol Kraft 2kg",
@@ -32,7 +32,7 @@
             "unit_price": 5.95,
             "total_price": 5.95,
             "total_discount": null,
-            "total_price_with_discount": 5.95
+            "final_price": 5.95
         },
         {
             "name": "SprayProntoZ50al",
@@ -40,7 +40,7 @@
             "unit_price": 8.99,
             "total_price": 8.99,
             "total_discount": null,
-            "total_price_with_discount": 8.99
+            "final_price": 8.99
         },
         {
             "name": "PiwoHahoud , 331",
@@ -48,7 +48,7 @@
             "unit_price": 4.99,
             "total_price": 9.58,
             "total_discount": null,
-            "total_price_with_discount": 9.58
+            "final_price": 9.58
         },
         {
             "name": "Napoj Cola Zero 11",
@@ -56,7 +56,7 @@
             "unit_price": 4.99,
             "total_price": 9.98,
             "total_discount": 2.4,
-            "total_price_with_discount": 7.58
+            "final_price": 7.58
         },
         {
             "name": "BrefBriltSpring2x42g",
@@ -64,7 +64,7 @@
             "unit_price": 10.99,
             "total_price": 10.99,
             "total_discount": null,
-            "total_price_with_discount": 10.99
+            "final_price": 10.99
         },
         {
             "name": "Gru Kon Luz",
@@ -72,7 +72,7 @@
             "unit_price": 6.95,
             "total_price": 7.23,
             "total_discount": null,
-            "total_price_with_discount": 7.23
+            "final_price": 7.23
         },
         {
             "name": "Huszyna-Skarb 1,51",
@@ -80,7 +80,7 @@
             "unit_price": false,
             "total_price": 9.54,
             "total_discount": null,
-            "total_price_with_discount": 9.54
+            "final_price": 9.54
         },
         {
             "name": "Hoda Nat LGaz 1,51",
@@ -88,7 +88,7 @@
             "unit_price": 1.89,
             "total_price": 11.34,
             "total_discount": null,
-            "total_price_with_discount": 11.34
+            "final_price": 11.34
         },
         {
             "name": "Cebula tkg apak",
@@ -96,7 +96,7 @@
             "unit_price": 3.49,
             "total_price": 3.49,
             "total_discount": null,
-            "total_price_with_discount": 3.49
+            "final_price": 3.49
         },
         {
             "name": "Brokut 500g szt",
@@ -104,7 +104,7 @@
             "unit_price": 4.49,
             "total_price": 4.49,
             "total_discount": null,
-            "total_price_with_discount": 4.49
+            "final_price": 4.49
         },
         {
             "name": "CZ0SNEK szt",
@@ -112,7 +112,7 @@
             "unit_price": 1.79,
             "total_price": 3.58,
             "total_discount": null,
-            "total_price_with_discount": 3.58
+            "final_price": 3.58
         },
         {
             "name": "Winogrono jas luz",
@@ -120,7 +120,7 @@
             "unit_price": 13.29,
             "total_price": 6.59,
             "total_discount": 3.42,
-            "total_price_with_discount": 3.47
+            "final_price": 3.47
         },
         {
             "name": "Banan luz",
@@ -128,7 +128,7 @@
             "unit_price": 5.69,
             "total_price": 4.34,
             "total_discount": null,
-            "total_price_with_discount": 4.34
+            "final_price": 4.34
         },
         {
             "name": "Butkaseznsienlno/g",
@@ -136,7 +136,7 @@
             "unit_price": 0.79,
             "total_price": 4.74,
             "total_discount": null,
-            "total_price_with_discount": 4.74
+            "final_price": 4.74
         },
         {
             "name": "PAPR CZER PL LUZ",
@@ -144,7 +144,7 @@
             "unit_price": 12.99,
             "total_price": 10.18,
             "total_discount": 5.4,
-            "total_price_with_discount": 4.7
+            "final_price": 4.7
         },
         {
             "name": "Wafle Mix 400g",
@@ -152,7 +152,7 @@
             "unit_price": 1.89,
             "total_price": 1.89,
             "total_discount": null,
-            "total_price_with_discount": 1.89
+            "final_price": 1.89
         },
         {
             "name": "Wafle Hix 100g",
@@ -160,7 +160,7 @@
             "unit_price": 1.89,
             "total_price": 1.89,
             "total_discount": null,
-            "total_price_with_discount": 1.89
+            "final_price": 1.89
         },
         {
             "name": "Jog Fruvitads 408g",
@@ -168,7 +168,7 @@
             "unit_price": 2.28,
             "total_price": 11.4,
             "total_discount": null,
-            "total_price_with_discount": 11.4
+            "final_price": 11.4
         },
         {
             "name": "pap, pon, fasbhunz2y",
@@ -176,7 +176,7 @@
             "unit_price": 4.94,
             "total_price": 4.94,
             "total_discount": null,
-            "total_price_with_discount": 4.94
+            "final_price": 4.94
         },
         {
             "name": "Ser Relikate 150g",
@@ -184,7 +184,7 @@
             "unit_price": 3.76,
             "total_price": 3.76,
             "total_discount": null,
-            "total_price_with_discount": 3.76
+            "final_price": 3.76
         },
         {
             "name": "TAPAS HISZP 120g",
@@ -192,7 +192,7 @@
             "unit_price": 45.99,
             "total_price": 5.99,
             "total_discount": null,
-            "total_price_with_discount": 5.99
+            "final_price": 5.99
         },
         {
             "name": "PizzaProshB43aq",
@@ -200,7 +200,7 @@
             "unit_price": 314.99,
             "total_price": 14.99,
             "total_discount": null,
-            "total_price_with_discount": 14.99
+            "final_price": 14.99
         },
         {
             "name": "Pizzalberyjska600q",
@@ -208,7 +208,7 @@
             "unit_price": 13.49,
             "total_price": 13.49,
             "total_discount": null,
-            "total_price_with_discount": 13.49
+            "final_price": 13.49
         },
         {
             "name": "Recznik Milla X2",
@@ -216,7 +216,7 @@
             "unit_price": 9.99,
             "total_price": 3.99,
             "total_discount": null,
-            "total_price_with_discount": 3.99
+            "final_price": 3.99
         },
         {
             "name": "Pier z seren 400g",
@@ -224,7 +224,7 @@
             "unit_price": 5.7,
             "total_price": 11.4,
             "total_discount": false,
-            "total_price_with_discount": 9.58
+            "final_price": 9.58
         },
         {
             "name": "Jog PRING 180g",
@@ -232,7 +232,7 @@
             "unit_price": 1.49,
             "total_price": 2.98,
             "total_discount": null,
-            "total_price_with_discount": 2.98
+            "final_price": 2.98
         },
         {
             "name": "DesHiszEtToro430q",
@@ -240,7 +240,7 @@
             "unit_price": 6.99,
             "total_price": 6.99,
             "total_discount": null,
-            "total_price_with_discount": 6.99
+            "final_price": 6.99
         },
         {
             "name": "SER. HOMOG. HEX. 158g",
@@ -248,7 +248,7 @@
             "unit_price": 2.47,
             "total_price": 2.47,
             "total_discount": null,
-            "total_price_with_discount": 2.47
+            "final_price": 2.47
         },
         {
             "name": "SER. HOMOG. HIX, 158g",
@@ -256,7 +256,7 @@
             "unit_price": 2.47,
             "total_price": 2.47,
             "total_discount": null,
-            "total_price_with_discount": 2.47
+            "final_price": 2.47
         },
         {
             "name": "Serek wiejski mI",
@@ -264,7 +264,7 @@
             "unit_price": 4.27,
             "total_price": 4.27,
             "total_discount": null,
-            "total_price_with_discount": 4.27
+            "final_price": 4.27
         },
         {
             "name": "LodNar tetKarn120n",
@@ -272,7 +272,7 @@
             "unit_price": 2.56,
             "total_price": 2.56,
             "total_discount": null,
-            "total_price_with_discount": 2.56
+            "final_price": 2.56
         },
         {
             "name": "WarNaPatHor Mix45aq",
@@ -280,7 +280,7 @@
             "unit_price": 5.23,
             "total_price": 5.23,
             "total_discount": 1.24,
-            "total_price_with_discount": 3.99
+            "final_price": 3.99
         },
         {
             "name": "ChrupPormeChiotS0g",
@@ -288,7 +288,7 @@
             "unit_price": 5.99,
             "total_price": 5.99,
             "total_discount": null,
-            "total_price_with_discount": 5.99
+            "final_price": 5.99
         },
         {
             "name": "PrzekaskaSafar i 180g",
@@ -296,7 +296,7 @@
             "unit_price": 3.54,
             "total_price": 3.51,
             "total_discount": null,
-            "total_price_with_discount": 3.51
+            "final_price": 3.51
         },
         {
             "name": "PalusChlebCien250q",
@@ -304,7 +304,7 @@
             "unit_price": 6.94,
             "total_price": 6.94,
             "total_discount": null,
-            "total_price_with_discount": 6.94
+            "final_price": 6.94
         },
         {
             "name": "PomidNaszSpizKro40Qg",
@@ -312,7 +312,7 @@
             "unit_price": 2.18,
             "total_price": 2.18,
             "total_discount": null,
-            "total_price_with_discount": 2.18
+            "final_price": 2.18
         },
         {
             "name": "WarzNaPatHrokr45ag",
@@ -320,7 +320,7 @@
             "unit_price": 3.48,
             "total_price": 3.48,
             "total_discount": null,
-            "total_price_with_discount": 3.48
+            "final_price": 3.48
         },
         {
             "name": "WarzNaPatHrokrd5ag",
@@ -328,7 +328,7 @@
             "unit_price": 3.48,
             "total_price": 3.48,
             "total_discount": null,
-            "total_price_with_discount": 3.48
+            "final_price": 3.48
         },
         {
             "name": "GrzankToroRo joi50g",
@@ -336,7 +336,7 @@
             "unit_price": 4.99,
             "total_price": 4.99,
             "total_discount": null,
-            "total_price_with_discount": 4.99
+            "final_price": 4.99
         },
         {
             "name": "SerGrilTolonis2@Gg",
@@ -344,7 +344,7 @@
             "unit_price": 6.99,
             "total_price": 6.99,
             "total_discount": null,
-            "total_price_with_discount": 6.99
+            "final_price": 6.99
         },
         {
             "name": "SerTwarChuDel i 250g",
@@ -352,7 +352,7 @@
             "unit_price": 2.85,
             "total_price": 5.78,
             "total_discount": null,
-            "total_price_with_discount": 5.78
+            "final_price": 5.78
         },
         {
             "name": "Ser. TwSnakAks 135g",
@@ -360,7 +360,7 @@
             "unit_price": 3.8,
             "total_price": 3.8,
             "total_discount": null,
-            "total_price_with_discount": 3.8
+            "final_price": 3.8
         },
         {
             "name": "ChlebCateZiarn3Q0g",
@@ -368,7 +368,7 @@
             "unit_price": 4.29,
             "total_price": 4.29,
             "total_discount": null,
-            "total_price_with_discount": 4.29
+            "final_price": 4.29
         },
         {
             "name": "Cukinia tuz",
@@ -376,7 +376,7 @@
             "unit_price": 4.99,
             "total_price": 2.4,
             "total_discount": null,
-            "total_price_with_discount": 2.4
+            "final_price": 2.4
         },
         {
             "name": "LodyMarlettodix120",
@@ -384,7 +384,7 @@
             "unit_price": 2.56,
             "total_price": 2.56,
             "total_discount": 4.56,
-            "total_price_with_discount": 1.6
+            "final_price": 1.6
         }
     ],
     "total_sum": 274.28

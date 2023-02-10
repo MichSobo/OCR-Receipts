@@ -221,7 +221,7 @@ def get_items(text, log=True, do_correct=True, write_raw=True, write_processed=T
 
         # Set additional properties
         item['total_discount'] = discount
-        item['total_price_with_discount'] = final_price
+        item['final_price'] = final_price
 
         # Add item to list of items
         items.append(item)
