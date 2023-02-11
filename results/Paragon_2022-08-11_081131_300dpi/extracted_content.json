@@ -68,7 +68,7 @@
         },
         {
             "name": "Gru Kon Luz",
-            "qty": 1.0,
+            "qty": 1.04,
             "unit_price": 6.95,
             "total_price": 7.23,
             "total_discount": null,
@@ -116,7 +116,7 @@
         },
         {
             "name": "Winogrono jas luz",
-            "qty": 0.0,
+            "qty": 0.496,
             "unit_price": 13.29,
             "total_price": 6.59,
             "total_discount": 3.42,
@@ -124,7 +124,7 @@
         },
         {
             "name": "Banan luz",
-            "qty": 9.0,
+            "qty": 9.762,
             "unit_price": 5.69,
             "total_price": 4.34,
             "total_discount": null,
@@ -140,7 +140,7 @@
         },
         {
             "name": "PAPR CZER PL LUZ",
-            "qty": 0.0,
+            "qty": 0.784,
             "unit_price": 12.99,
             "total_price": 10.18,
             "total_discount": 5.4,
@@ -372,7 +372,7 @@
         },
         {
             "name": "Cukinia tuz",
-            "qty": 6.0,
+            "qty": 6.48,
             "unit_price": 4.99,
             "total_price": 2.4,
             "total_discount": null,

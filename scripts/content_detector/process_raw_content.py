@@ -151,10 +151,10 @@ def get_qty(string):
     """Return quantity string in proper format from another string."""
     r = QTY_REGEX.match(string).groups()
 
-    if len(r) > 1:
+    if r[2] is None:
         return r[0]
     else:
-        return f'{r[0]}.{r[1]}'
+        return f'{r[0]}.{r[2]}'
 
 
 def get_price(string, is_discount=False):
