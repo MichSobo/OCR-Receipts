@@ -78,7 +78,7 @@
         {
             "name": "Huszyna-Skarb 1,51",
             "qty": 6.0,
-            "unit_price": false,
+            "unit_price": 1.59,
             "total_price": 9.54,
             "discount": null,
             "final_price": 9.54
