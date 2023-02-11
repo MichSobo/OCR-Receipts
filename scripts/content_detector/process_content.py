@@ -10,17 +10,18 @@ import re
 ITEM_REGEX = re.compile(r'''
     (.+)                    # item name
     \s+\S{1,2}\s+           # char surrounded with spaces
-    (\d+([,.]\s?\d+)?)      # quantity
+    (\d+([,. ]\d+)?)        # quantity
     \sx?                    # "x"
-    ([t\d]+[,.]\s?\d{0,2})  # item unit price
-    \s+(\d+[,.]\s?\d{0,2})  # item total price
+    ([t\d]+[,.]\s?\d{,2})   # item unit price
+    \s+                     # space
+    (\d+[,.]\s?\d{,2})      # item total price
 ''', re.VERBOSE)
 
-DISCOUNT_REGEX = re.compile(r'OPUST -?(\d+[,.]?\s?\d{0,2})')
+DISCOUNT_REGEX = re.compile(r'OPUST -?(\w+)[,. ]+(\w{,2})')
 
-PRICE_REGEX = re.compile(r'\d+[,.]\s?\d{0,2}')
+QTY_REGEX = re.compile(r'(\d+)([,. ]+(\d{,3}))?')
 
-QTY_PRICE_REGEX = re.compile(r'\s?,\s?')
+PRICE_REGEX = re.compile(r'(\w+)[,. ]+(\w{,2})')
 
 
 def preprocess_text(text):
@@ -122,8 +123,6 @@ def string_to_float(string, log=True, item_string=None, do_correct=True):
             else:
                 return float_user_input
 
-    string = QTY_PRICE_REGEX.sub('.', string)
-
     try:
         value = float(string)
     except ValueError as e:
@@ -138,13 +137,26 @@ def string_to_float(string, log=True, item_string=None, do_correct=True):
             value = get_correct_value()
         else:
             value = False
-    # except TypeError as e:
-    #     if value is None:
-    #         pass
-    #     else:
-    #         raise TypeError(e)
     finally:
         return value
+
+
+def get_qty(string):
+    """Return quantity string in proper format from another string."""
+    r = QTY_REGEX.match(string).groups()
+
+    if len(r) > 1:
+        return r[0]
+    else:
+        return f'{r[0]}.{r[1]}'
+
+
+def get_price(string, is_discount=False):
+    """Return price string in proper format from another string."""
+    pattern = DISCOUNT_REGEX if is_discount else PRICE_REGEX
+    r = pattern.match(string).groups()
+
+    return f'{r[0]}.{r[1]}'
 
 
 def get_item(text, log=True, do_correct=True):
@@ -156,9 +168,9 @@ def get_item(text, log=True, do_correct=True):
     # Set item properties
     item = {
         'name': result.group(1),
-        'qty': result.group(2),
-        'unit_price': result.group(4),
-        'total_price': result.group(5)
+        'qty': get_qty(result.group(2)),
+        'unit_price': get_price(result.group(4)),
+        'total_price': get_price(result.group(5))
     }
 
     # Convert properties from string to numeric
@@ -166,10 +178,14 @@ def get_item(text, log=True, do_correct=True):
         value = string_to_float(item[key], log, text, do_correct)
         item[key] = value
 
+    # Set additional properties
+    item['discount'] = None
+    item['final_price'] = item['total_price']
+
     return item
 
 
-def get_items(text, log=True, do_correct=True, write_raw=True, write_processed=True):
+def get_items(text, log=True, do_correct=True):
     """Return a list of shop items extracted from text.
 
     Each item is a dictionary with the following attributes:
@@ -185,10 +201,6 @@ def get_items(text, log=True, do_correct=True, write_raw=True, write_processed=T
         log (bool): set whether to print log messages (default True)
         do_correct (bool): set whether to ask user for correct values (default
             True)
-        write_raw (bool): write matched regex pattern to raw_products.txt
-            (default True)
-        write_processed (bool): write processed matched items to
-            processed_products.txt (default True)
 
     Returns:
         list[dict]: list of items
@@ -205,23 +217,16 @@ def get_items(text, log=True, do_correct=True, write_raw=True, write_processed=T
         if item is None:
             continue
 
-        # Get additional properties
         if len(line) > 1:
-            # Item with discount
+            # Modify discount and final price properties
             discount_line, final_price_line = line[1], line[2]
-            discount = DISCOUNT_REGEX.search(discount_line).group(1)
-            final_price = PRICE_REGEX.match(final_price_line).group()
+            discount = get_price(discount_line, is_discount=True)
+            final_price = get_price(final_price_line)
 
-            discount = string_to_float(discount, log, item_line, do_correct)
-            final_price = string_to_float(final_price, log, item_line, do_correct)
-        else:
-            # Item without discount
-            discount = None
-            final_price = item['total_price']
+            # Update properties
+            item['total_discount'] = string_to_float(discount, log, item_line, do_correct)
+            item['final_price'] = string_to_float(final_price, log, item_line, do_correct)
 
-        # Set additional properties
-        item['total_discount'] = discount
-        item['final_price'] = final_price
 
         # Add item to list of items
         items.append(item)
@@ -240,11 +245,12 @@ def get_total_sum(text, value_if_not_recognized=False):
     Returns:
         float: recognized total sum, value_if_not_recognized otherwise
     """
-    total_cost_regex = re.compile(r'SUMA\s+\w+\s+(\d+[,.]\d+)')
-    match = total_cost_regex.search(text)
+    pattern = re.compile(r'SUMA PLN (\d+[,. ]+\d{2})')
+    match = pattern.search(text)
 
     if match:
-        return string_to_float(match.group(1))
+        price_str = get_price(match.group(1))
+        return string_to_float(price_str)
     else:
         return value_if_not_recognized
 
