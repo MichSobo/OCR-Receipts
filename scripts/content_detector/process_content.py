@@ -1,40 +1,86 @@
 """
-Script for extracting relevant data from text that was recognized based on
-receipt image.
+Script for extracting relevant data from recognized receipt content.
 """
 import json
 import os
 import re
 
 
-# Set input file name
-content_filename = 'Paragon_2022-08-11_081131_300dpi.txt'
-content_filepath = \
-    os.path.join('../../results/Paragon_2022-08-11_081131_300dpi/raw_content.txt')
+# Define regex patterns
+ITEM_REGEX = re.compile(r'''
+    (.+)                    # item name
+    \s+\S{1,2}\s+           # char surrounded with spaces
+    (\d+([,. ]\d+)?)        # quantity
+    \sx?                    # "x"
+    ([t\d]+[,.]\s?\d{,2})   # item unit price
+    \s+                     # space
+    (\d+[,.]\s?\d{,2})      # item total price
+''', re.VERBOSE)
 
-# Set output folder path
-# out_folderpath = content_filepath.parent
+DISCOUNT_REGEX = re.compile(r'OPUST -?(\w+)[,. ]+(\w{,2})')
+
+QTY_REGEX = re.compile(r'(\d+)([,. ]+(\d{,3}))?')
+
+PRICE_REGEX = re.compile(r'(\w+)[,. ]+(\w{,2})')
 
 
 def preprocess_text(text):
-    """Return pre-processed text to enhance data extraction."""
-    # Replace characters wrongly recognized as "1"
-    text = list(map(lambda x: x.replace('{', '1'), text))
-    text = list(map(lambda x: x.replace('(', '1'), text))
+    """Return pre-processed text with replaced commonly incorrect characters."""
+    new_text = text
 
-    return text
+    # Replace characters incorrectly recognized as "1"
+    new_text = new_text.replace('(', '1')
+    new_text = new_text.replace('{', '1')
+
+    # Replace characters incorrectly recognized as "x"
+    new_text = new_text.replace('«', 'x')
+    new_text = new_text.replace('¥', 'x')
+
+    # Replace characters incorrectly recognized as "-"
+    new_text = new_text.replace('~', '-')
+
+    # Replace characters incorrectly recognized as "?"
+    new_text = new_text.replace('?', 'P')
+
+    return new_text
 
 
-def get_shop(text, value_if_not_recognized='unknown'):
-    """Extract shop name from receipt's raw content.
+def get_split_text(text, save=False, output_filepath=''):
+    """Return a split text by new lines, considering discount."""
+    text_split = text.split('\n')
 
-    Return shop name if it exists in text by comparing defined shop names with
-    receipt content.
+    # Remove empty lines
+    text_split = list(filter(lambda x: x != '', text_split))
+
+    # Consider discount
+    text_split_new = []
+
+    i = 0
+    while i < len(text_split):
+        line = text_split[i]
+
+        if 'OPUST' in line:
+            text_split_new[-1] += [line, text_split[i + 1]]
+            i += 2
+        else:
+            text_split_new.append([line])
+            i += 1
+
+    return text_split_new
+
+
+def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
+    """Extract shop name from receipt's content.
+
+    Return shop name if it exists in receipt text by comparing defined shop
+    names with receipt content.
+    In case of no match, str_if_not_recognized argument is returned.
 
     Arguments:
-        text (str): input string from which shop name will be extracted
+        text (str): input string for shop name extraction
+        do_correct (bool): set whether to ask user for correct values (default True)
         value_if_not_recognized (str): value to be returned if shop name is not
-            found in the text (default 'unknown')
+            found in the text (default False)
 
     Returns:
         str: recognized shop name, value_if_not_recognized otherwise
@@ -45,129 +91,264 @@ def get_shop(text, value_if_not_recognized='unknown'):
         'Żabka': ('żabka', 'zabka'),
     }
 
-    for row in text:
-        for name, possible_names in SHOPS.items():
-            for possible_name in possible_names:
-                if possible_name in row.lower():
-                    return name
+    for name, possible_names in SHOPS.items():
+        for possible_name in possible_names:
+            if possible_name in text.lower():
+                return name
 
-    return value_if_not_recognized
+    # In case shop name was not recognized
+    if do_correct:
+        value = input('\nShop name was not recognized. Enter correct value: ')
+        return get_shop_name(value)
+    else:
+        return value_if_not_recognized
 
 
-def get_products(text, write_raw=True, write_processed=True):
-    """Return products extracted from text.
+def string_to_float(string, log=True, item_string=None, do_correct=True):
+    """Return float from string.
 
-    Return a list of products that were recognized in the text. Products
-    recognition process is executed using regular expressions.
+    Arguments:
+        string (str): string to convert to float
+        log (bool): set whether to print log messages (default True)
+        item_string (str): string to be printed with error message (default None)
+        do_correct (bool): set whether to ask user for correct values (default
+            True)
 
-    Each product is a dictionary with the following attributes:
-        - 'name' - product name,
-        - 'quantity' - number of pieces or product mass,
-        - 'price' - price of a single product,
-        - 'total_price' - quantity multiplied by price.
+    Returns:
+        float if conversion was successful, False otherwise
+    """
+
+    def get_correct_value():
+        """Get a correct value for quantity or price from user."""
+        while True:
+            user_input = input('\nEnter a valid number: ')
+            try:
+                float_user_input = float(user_input)
+            except ValueError:
+                print('Wrong input! Try again.')
+            else:
+                return float_user_input
+
+    try:
+        value = float(string)
+    except ValueError as e:
+        if log:
+            # Print log messages
+            if item_string:
+                print(f'\nError occurred for item: "{item_string}"')
+            print(e)
+
+        if do_correct:
+            # Interactively get correct the value
+            value = get_correct_value()
+        else:
+            value = False
+    finally:
+        return value
+
+
+def get_qty(string):
+    """Return quantity string in proper format from another string."""
+    r = QTY_REGEX.match(string).groups()
+
+    if len(r) > 1:
+        return r[0]
+    else:
+        return f'{r[0]}.{r[1]}'
+
+
+def get_price(string, is_discount=False):
+    """Return price string in proper format from another string."""
+    pattern = DISCOUNT_REGEX if is_discount else PRICE_REGEX
+    r = pattern.match(string).groups()
+
+    return f'{r[0]}.{r[1]}'
+
+
+def get_item(text, log=True, do_correct=True):
+    """Return a dictionary with item properties."""
+    result = ITEM_REGEX.match(text)
+    if result is None:
+        return None
+
+    # Set item properties
+    item = {
+        'name': result.group(1),
+        'qty': get_qty(result.group(2)),
+        'unit_price': get_price(result.group(4)),
+        'total_price': get_price(result.group(5))
+    }
+
+    # Convert properties from string to numeric
+    for key in list(item.keys())[1:]:
+        value = string_to_float(item[key], log, text, do_correct)
+        item[key] = value
+
+    # Set additional properties
+    item['discount'] = None
+    item['final_price'] = item['total_price']
+
+    return item
+
+
+def get_items(text, log=True, do_correct=True):
+    """Return a list of shop items extracted from text.
+
+    Each item is a dictionary with the following attributes:
+        - 'name' - item name,
+        - 'qty' - item quantity,
+        - 'unit_price' - item unit price,
+        - 'total_price' - item total price.
 
     Optionally, matched text can be saved to text files to help debugging.
 
     Arguments:
         text (str): input string from which data will be extracted
-        write_raw (bool): write matched regex pattern to raw_products.txt
-            (default True)
-        write_processed (bool): write processed matched items to
-            processed_products.txt (default True)
+        log (bool): set whether to print log messages (default True)
+        do_correct (bool): set whether to ask user for correct values (default
+            True)
 
     Returns:
-        list: collection (list) of products (dictionaries)
+        list[dict]: list of items
     """
-    # Define regex for product data extraction
-    product_regex = re.compile(r'''(
-            (.+)            # product
-            \s+\S{1,2}\s+   # char surrounded with spaces
-            (\d([,.]\d+)?)  # quantity
-            \s*             # space
-            \S{1,2}         # "x"
-            (\d+,\s?\d{2})  # product price
-            \s+             # space
-            (\d+,\s?\d{2})  # total sum for product
-        )''', re.VERBOSE)
+    # Get split text (for each item, including discount)
+    split_text = get_split_text(text)
 
-    products = []
-    groups_list = []
+    items = []
+    for line in split_text:
+        item_line = line[0]
 
-    for row in text:
-        match = re.search(product_regex, row)
-        if match:
-            groups = match.groups()
-            groups_list.append(groups)
+        # Get item properties
+        item = get_item(item_line, log, do_correct)
+        if item is None:
+            continue
 
-            products.append({
-                'name': groups[1],
-                'quantity': groups[2],
-                'price': groups[4],
-                'total_price': groups[5]
-            })
+        if len(line) > 1:
+            # Modify discount and final price properties
+            discount_line, final_price_line = line[1], line[2]
+            discount = get_price(discount_line, is_discount=True)
+            final_price = get_price(final_price_line)
 
-    if write_raw:
-        raw_products_str = [groups[0] for groups in groups_list]
-        products_filename = 'raw_products.txt'
-        products_filepath = out_folderpath / products_filename
-        with open(products_filepath, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(raw_products_str))
-        print(f'Raw products were written to file "{products_filepath}"')
-
-    if write_processed:
-        products_str = [f'{groups[1]} {groups[2]} x{groups[4]} {groups[5]}'
-                        for groups in groups_list]
-        products_filename = 'processed_products.txt'
-        products_filepath = out_folderpath / products_filename
-        with open(products_filepath, 'w') as f:
-            f.write('\n'.join(products_str))
-        print(f'Processed products were written to file "{products_filepath}"')
-
-    return products
+            # Update properties
+            item['total_discount'] = string_to_float(discount, log, item_line, do_correct)
+            item['final_price'] = string_to_float(final_price, log, item_line, do_correct)
 
 
-def get_total(text, value_if_not_recognized='unknown'):
+        # Add item to list of items
+        items.append(item)
+
+    return items
+
+
+def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
     """Return total shopping sum.
 
     Arguments:
         text (str): input string from which total cost will be extracted
-        value_if_not_recognized (str): value to be returned if shop name is not
-            found in the text (default 'unknown')
+        do_correct (bool): set whether to ask user for correct values (default True)
+        value_if_not_recognized (float): value to be returned if shop name is
+            not found in the text (default False)
 
     Returns:
-        str: recognized total sum, value_if_not_recognized otherwise
+        float: recognized total sum, value_if_not_recognized otherwise
     """
-    total_cost_regex = re.compile(r'SUMA\s+\w+\s+(\d+[,.]\d+)')
-    match = re.search(total_cost_regex, ''.join(list(text)))
+    pattern = re.compile(r'SUMA PLN (\d+[,. ]+\d{2})')
+    match = pattern.search(text)
 
     if match:
-        return match.group(1)
+        price_str = get_price(match.group(1))
+        return string_to_float(price_str)
     else:
-        return value_if_not_recognized
+        if do_correct:
+            value = input('\nTotal sum was not recognized. Enter correct value: ')
+            return string_to_float(value)
+        else:
+            return value_if_not_recognized
 
-if __name__ == '__main__':
-    content = {}
 
-    # Read text file
-    with open(content_filepath, 'r', encoding='utf-8') as f:
-        text = f.readlines()
-    print(f'Text content was read from file "{content_filepath}"')
+def get_extracted_content(input_filepath,
+                          log=True,
+                          do_correct=True,
+                          do_save=True,
+                          output_filepath='extracted_content.json'):
+    """Return a dictionary with extracted content.
 
-    # Extract shop name
-    content['shop'] = get_shop(text)
+    The extracted content items are put in a dictionary as:
+    - 'content_filepath' - path to the file that was used as a source for
+        content extraction,
+    - 'shop_name' - name of the shop,
+    - 'items' - shop items on the receipt,
+    - 'total_sum' - total sum on the receipt.
+
+    Arguments:
+        input_filepath (str): path
+        log (bool): set whether to print log messages (default True)
+        do_correct (bool): set whether to ask user for correct values (default True)
+        do_save (bool): set whether to save the extracted content to a JSON file
+            (default True)
+        output_filepath (str): path to the output file (default extracted_content.txt)
+
+    Return:
+        dict: dictionary with extracted content
+    """
+    # Read raw content
+    with open(input_filepath, encoding='utf-8') as f:
+        raw_content = f.read()
+
+    if log:
+        path = os.path.abspath(input_filepath)
+        print(f'Raw content was read from file "{path}"')
+
+    # Get the main body of the receipt
+    raw_content_main = raw_content.split('PARAGON FISKALNY\n')[1]
 
     # Replace common wrong characters
-    text = preprocess_text(text)
+    content = preprocess_text(raw_content_main)
 
-    # Define lists for storing products
-    content['products'] = get_products(text)
+    # Get shop name
+    shop_name = get_shop_name(raw_content, do_correct=do_correct)
 
-    # Extract total cost
-    content['total_sum'] = get_total(text)
+    # Get items
+    items = get_items(content, log=log, do_correct=do_correct)
 
-    # Write extracted content to json file
-    json_content_filename = 'content.json'
-    json_content_filepath = out_folderpath / json_content_filename
-    with open(json_content_filepath, 'w') as f:
-        json.dump(content, f, indent=4)
-    print(f'Processed content was written to file "{json_content_filepath}"')
+    # Get total sum
+    total_sum = get_total_sum(raw_content_main, do_correct=do_correct)
+
+    # Set result dictionary
+    extracted_content = {
+        'content_filepath': input_filepath,
+        'shop_name': shop_name,
+        'items': items,
+        'total_sum': total_sum
+    }
+
+    if do_save is True:
+        # Write recognized content to file
+        with open(output_filepath, 'w', encoding='utf-8') as f:
+            json.dump(extracted_content, f, indent=4)
+
+        if log is True:
+            abspath = os.path.abspath(output_filepath)
+            print(f'\nExtracted content was written to file "{abspath}"')
+
+    return extracted_content
+
+
+def main():
+    # Set default paths
+    ROOT_FOLDERPATH = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../..'))
+
+    # Set path to raw content
+    content_folderpath = os.path.join('results', 'Paragon_2022-08-11_081131_300dpi')
+    content_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, 'raw_content.txt')
+
+    # Get extracted content
+    output_filename = 'extracted_content.json'
+    output_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, output_filename)
+    extracted_content = get_extracted_content(content_filepath, log=True,
+                                              output_filepath=output_filepath)
+
+
+if __name__ == '__main__':
+    main()
