@@ -69,7 +69,7 @@ def get_split_text(text, save=False, output_filepath=''):
     return text_split_new
 
 
-def get_shop_name(text, value_if_not_recognized=False):
+def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
     """Extract shop name from receipt's content.
 
     Return shop name if it exists in receipt text by comparing defined shop
@@ -78,6 +78,7 @@ def get_shop_name(text, value_if_not_recognized=False):
 
     Arguments:
         text (str): input string for shop name extraction
+        do_correct (bool): set whether to ask user for correct values (default True)
         value_if_not_recognized (str): value to be returned if shop name is not
             found in the text (default False)
 
@@ -95,7 +96,12 @@ def get_shop_name(text, value_if_not_recognized=False):
             if possible_name in text.lower():
                 return name
 
-    return value_if_not_recognized
+    # In case shop name was not recognized
+    if do_correct:
+        value = input('\nShop name was not recognized. Enter correct value: ')
+        return get_shop_name(value)
+    else:
+        return value_if_not_recognized
 
 
 def string_to_float(string, log=True, item_string=None, do_correct=True):
@@ -234,11 +240,12 @@ def get_items(text, log=True, do_correct=True):
     return items
 
 
-def get_total_sum(text, value_if_not_recognized=False):
+def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
     """Return total shopping sum.
 
     Arguments:
         text (str): input string from which total cost will be extracted
+        do_correct (bool): set whether to ask user for correct values (default True)
         value_if_not_recognized (float): value to be returned if shop name is
             not found in the text (default False)
 
@@ -252,26 +259,37 @@ def get_total_sum(text, value_if_not_recognized=False):
         price_str = get_price(match.group(1))
         return string_to_float(price_str)
     else:
-        return value_if_not_recognized
+        if do_correct:
+            value = input('\nTotal sum was not recognized. Enter correct value: ')
+            return string_to_float(value)
+        else:
+            return value_if_not_recognized
 
 
 def get_extracted_content(input_filepath,
                           log=True,
-                          save=True,
+                          do_correct=True,
+                          do_save=True,
                           output_filepath='extracted_content.json'):
     """Return a dictionary with extracted content.
+
+    The extracted content items are put in a dictionary as:
+    - 'content_filepath' - path to the file that was used as a source for
+        content extraction,
+    - 'shop_name' - name of the shop,
+    - 'items' - shop items on the receipt,
+    - 'total_sum' - total sum on the receipt.
 
     Arguments:
         input_filepath (str): path
         log (bool): set whether to print log messages (default True)
-        save (bool): set whether to save the extracted content to a JSON file
+        do_correct (bool): set whether to ask user for correct values (default True)
+        do_save (bool): set whether to save the extracted content to a JSON file
             (default True)
-        output_filepath (str): path to the output file
-            (default extracted_content.txt)
+        output_filepath (str): path to the output file (default extracted_content.txt)
 
     Return:
-        dict: dictionary with extracted properties, where key -> property and
-            value -> property values
+        dict: dictionary with extracted content
     """
     # Read raw content
     with open(input_filepath, encoding='utf-8') as f:
@@ -288,13 +306,13 @@ def get_extracted_content(input_filepath,
     content = preprocess_text(raw_content_main)
 
     # Get shop name
-    shop_name = get_shop_name(raw_content)
+    shop_name = get_shop_name(raw_content, do_correct=do_correct)
 
     # Get items
-    items = get_items(content, log=True, do_correct=False)
+    items = get_items(content, log=log, do_correct=do_correct)
 
     # Get total sum
-    total_sum = get_total_sum(raw_content_main)
+    total_sum = get_total_sum(raw_content_main, do_correct=do_correct)
 
     # Set result dictionary
     extracted_content = {
@@ -304,14 +322,14 @@ def get_extracted_content(input_filepath,
         'total_sum': total_sum
     }
 
-    if save is True:
+    if do_save is True:
         # Write recognized content to file
         with open(output_filepath, 'w', encoding='utf-8') as f:
             json.dump(extracted_content, f, indent=4)
 
         if log is True:
-            print(f'Recognized image content was written to file '
-                  f'"{os.path.abspath(output_filepath)}"')
+            abspath = os.path.abspath(output_filepath)
+            print(f'\nExtracted content was written to file "{abspath}"')
 
     return extracted_content
 
@@ -328,7 +346,7 @@ def main():
     # Get extracted content
     output_filename = 'extracted_content.json'
     output_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, output_filename)
-    extracted_content = get_extracted_content(content_filepath,
+    extracted_content = get_extracted_content(content_filepath, log=True,
                                               output_filepath=output_filepath)
 
 

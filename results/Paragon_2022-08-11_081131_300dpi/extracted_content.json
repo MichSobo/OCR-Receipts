@@ -7,7 +7,7 @@
             "qty": 1.0,
             "unit_price": 3.99,
             "total_price": 3.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.99
         },
         {
@@ -15,7 +15,7 @@
             "qty": 1.0,
             "unit_price": 3.49,
             "total_price": 3.49,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.49
         },
         {
@@ -23,7 +23,7 @@
             "qty": 1.0,
             "unit_price": 13.99,
             "total_price": 13.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 13.99
         },
         {
@@ -31,7 +31,7 @@
             "qty": 1.0,
             "unit_price": 5.95,
             "total_price": 5.95,
-            "total_discount": null,
+            "discount": null,
             "final_price": 5.95
         },
         {
@@ -39,7 +39,7 @@
             "qty": 11.0,
             "unit_price": 8.99,
             "total_price": 8.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 8.99
         },
         {
@@ -47,7 +47,7 @@
             "qty": 2.0,
             "unit_price": 4.99,
             "total_price": 9.58,
-            "total_discount": null,
+            "discount": null,
             "final_price": 9.58
         },
         {
@@ -55,23 +55,24 @@
             "qty": 2.0,
             "unit_price": 4.99,
             "total_price": 9.98,
-            "total_discount": 2.4,
-            "final_price": 7.58
+            "discount": null,
+            "final_price": 7.58,
+            "total_discount": 2.4
         },
         {
             "name": "BrefBriltSpring2x42g",
             "qty": 1.0,
             "unit_price": 10.99,
             "total_price": 10.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 10.99
         },
         {
             "name": "Gru Kon Luz",
-            "qty": 1.04,
+            "qty": 1.0,
             "unit_price": 6.95,
             "total_price": 7.23,
-            "total_discount": null,
+            "discount": null,
             "final_price": 7.23
         },
         {
@@ -79,7 +80,7 @@
             "qty": 6.0,
             "unit_price": false,
             "total_price": 9.54,
-            "total_discount": null,
+            "discount": null,
             "final_price": 9.54
         },
         {
@@ -87,7 +88,7 @@
             "qty": 6.0,
             "unit_price": 1.89,
             "total_price": 11.34,
-            "total_discount": null,
+            "discount": null,
             "final_price": 11.34
         },
         {
@@ -95,7 +96,7 @@
             "qty": 1.0,
             "unit_price": 3.49,
             "total_price": 3.49,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.49
         },
         {
@@ -103,7 +104,7 @@
             "qty": 1.0,
             "unit_price": 4.49,
             "total_price": 4.49,
-            "total_discount": null,
+            "discount": null,
             "final_price": 4.49
         },
         {
@@ -111,23 +112,24 @@
             "qty": 2.0,
             "unit_price": 1.79,
             "total_price": 3.58,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.58
         },
         {
             "name": "Winogrono jas luz",
-            "qty": 0.496,
+            "qty": 0.0,
             "unit_price": 13.29,
             "total_price": 6.59,
-            "total_discount": 3.42,
-            "final_price": 3.47
+            "discount": null,
+            "final_price": 3.47,
+            "total_discount": 3.42
         },
         {
             "name": "Banan luz",
-            "qty": 9.762,
+            "qty": 9.0,
             "unit_price": 5.69,
             "total_price": 4.34,
-            "total_discount": null,
+            "discount": null,
             "final_price": 4.34
         },
         {
@@ -135,23 +137,24 @@
             "qty": 6.0,
             "unit_price": 0.79,
             "total_price": 4.74,
-            "total_discount": null,
+            "discount": null,
             "final_price": 4.74
         },
         {
             "name": "PAPR CZER PL LUZ",
-            "qty": 0.784,
+            "qty": 0.0,
             "unit_price": 12.99,
             "total_price": 10.18,
-            "total_discount": 5.4,
-            "final_price": 4.7
+            "discount": null,
+            "final_price": 4.7,
+            "total_discount": 5.4
         },
         {
             "name": "Wafle Mix 400g",
             "qty": 4.0,
             "unit_price": 1.89,
             "total_price": 1.89,
-            "total_discount": null,
+            "discount": null,
             "final_price": 1.89
         },
         {
@@ -159,7 +162,7 @@
             "qty": 1.0,
             "unit_price": 1.89,
             "total_price": 1.89,
-            "total_discount": null,
+            "discount": null,
             "final_price": 1.89
         },
         {
@@ -167,7 +170,7 @@
             "qty": 4.0,
             "unit_price": 2.28,
             "total_price": 11.4,
-            "total_discount": null,
+            "discount": null,
             "final_price": 11.4
         },
         {
@@ -175,7 +178,7 @@
             "qty": 1.0,
             "unit_price": 4.94,
             "total_price": 4.94,
-            "total_discount": null,
+            "discount": null,
             "final_price": 4.94
         },
         {
@@ -183,7 +186,7 @@
             "qty": 1.0,
             "unit_price": 3.76,
             "total_price": 3.76,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.76
         },
         {
@@ -191,7 +194,7 @@
             "qty": 1.0,
             "unit_price": 45.99,
             "total_price": 5.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 5.99
         },
         {
@@ -199,7 +202,7 @@
             "qty": 4.0,
             "unit_price": 314.99,
             "total_price": 14.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 14.99
         },
         {
@@ -207,7 +210,7 @@
             "qty": 4.0,
             "unit_price": 13.49,
             "total_price": 13.49,
-            "total_discount": null,
+            "discount": null,
             "final_price": 13.49
         },
         {
@@ -215,7 +218,7 @@
             "qty": 1.0,
             "unit_price": 9.99,
             "total_price": 3.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.99
         },
         {
@@ -223,15 +226,16 @@
             "qty": 2.0,
             "unit_price": 5.7,
             "total_price": 11.4,
-            "total_discount": false,
-            "final_price": 9.58
+            "discount": null,
+            "final_price": 9.58,
+            "total_discount": 1.82
         },
         {
             "name": "Jog PRING 180g",
             "qty": 2.0,
             "unit_price": 1.49,
             "total_price": 2.98,
-            "total_discount": null,
+            "discount": null,
             "final_price": 2.98
         },
         {
@@ -239,7 +243,7 @@
             "qty": 1.0,
             "unit_price": 6.99,
             "total_price": 6.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 6.99
         },
         {
@@ -247,7 +251,7 @@
             "qty": 1.0,
             "unit_price": 2.47,
             "total_price": 2.47,
-            "total_discount": null,
+            "discount": null,
             "final_price": 2.47
         },
         {
@@ -255,7 +259,7 @@
             "qty": 1.0,
             "unit_price": 2.47,
             "total_price": 2.47,
-            "total_discount": null,
+            "discount": null,
             "final_price": 2.47
         },
         {
@@ -263,7 +267,7 @@
             "qty": 1.0,
             "unit_price": 4.27,
             "total_price": 4.27,
-            "total_discount": null,
+            "discount": null,
             "final_price": 4.27
         },
         {
@@ -271,7 +275,7 @@
             "qty": 1.0,
             "unit_price": 2.56,
             "total_price": 2.56,
-            "total_discount": null,
+            "discount": null,
             "final_price": 2.56
         },
         {
@@ -279,15 +283,16 @@
             "qty": 11.0,
             "unit_price": 5.23,
             "total_price": 5.23,
-            "total_discount": 1.24,
-            "final_price": 3.99
+            "discount": null,
+            "final_price": 3.99,
+            "total_discount": 1.24
         },
         {
             "name": "ChrupPormeChiotS0g",
             "qty": 1.0,
             "unit_price": 5.99,
             "total_price": 5.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 5.99
         },
         {
@@ -295,7 +300,7 @@
             "qty": 1.0,
             "unit_price": 3.54,
             "total_price": 3.51,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.51
         },
         {
@@ -303,7 +308,7 @@
             "qty": 1.0,
             "unit_price": 6.94,
             "total_price": 6.94,
-            "total_discount": null,
+            "discount": null,
             "final_price": 6.94
         },
         {
@@ -311,7 +316,7 @@
             "qty": 11.0,
             "unit_price": 2.18,
             "total_price": 2.18,
-            "total_discount": null,
+            "discount": null,
             "final_price": 2.18
         },
         {
@@ -319,7 +324,7 @@
             "qty": 1.0,
             "unit_price": 3.48,
             "total_price": 3.48,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.48
         },
         {
@@ -327,7 +332,7 @@
             "qty": 1.0,
             "unit_price": 3.48,
             "total_price": 3.48,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.48
         },
         {
@@ -335,7 +340,7 @@
             "qty": 1.0,
             "unit_price": 4.99,
             "total_price": 4.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 4.99
         },
         {
@@ -343,7 +348,7 @@
             "qty": 4.0,
             "unit_price": 6.99,
             "total_price": 6.99,
-            "total_discount": null,
+            "discount": null,
             "final_price": 6.99
         },
         {
@@ -351,7 +356,7 @@
             "qty": 2.0,
             "unit_price": 2.85,
             "total_price": 5.78,
-            "total_discount": null,
+            "discount": null,
             "final_price": 5.78
         },
         {
@@ -359,7 +364,7 @@
             "qty": 1.0,
             "unit_price": 3.8,
             "total_price": 3.8,
-            "total_discount": null,
+            "discount": null,
             "final_price": 3.8
         },
         {
@@ -367,15 +372,15 @@
             "qty": 1.0,
             "unit_price": 4.29,
             "total_price": 4.29,
-            "total_discount": null,
+            "discount": null,
             "final_price": 4.29
         },
         {
             "name": "Cukinia tuz",
-            "qty": 6.48,
+            "qty": 6.0,
             "unit_price": 4.99,
             "total_price": 2.4,
-            "total_discount": null,
+            "discount": null,
             "final_price": 2.4
         },
         {
@@ -383,8 +388,9 @@
             "qty": 4.0,
             "unit_price": 2.56,
             "total_price": 2.56,
-            "total_discount": 4.56,
-            "final_price": 1.6
+            "discount": null,
+            "final_price": 1.6,
+            "total_discount": 4.56
         }
     ],
     "total_sum": 274.28
