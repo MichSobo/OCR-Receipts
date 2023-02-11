@@ -185,7 +185,7 @@ def get_item(text, log=True, do_correct=True):
         item[key] = value
 
     # Set additional properties
-    item['discount'] = None
+    item['total_discount'] = None
     item['final_price'] = item['total_price']
 
     return item
