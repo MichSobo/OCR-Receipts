@@ -106,33 +106,14 @@ def correct_discounted_items(df, inplace=False):
 
     # Correct wrong properties
     props = ['total_price', 'total_discount', 'final_price']
+
     new_disc_items_df = wrong_disc_items_df.copy()
     for i in new_disc_items_df.index:
+        # Get item
         item = new_disc_items_df.loc[i]
 
-        while True:
-            print(f'\n{item[["name", *props]]}')
-
-            values = {}
-
-            for prop in props:
-                print(f'\nProperty: "{prop}", Value: {item[prop]}')
-
-                # Set new value or skip
-                value = input('Enter a new value or press Enter to skip: ')
-                if value == '':
-                    values[prop] = item[prop]
-                else:
-                    values[prop] = string_to_float(value)
-
-            # Check if new values are correct
-            is_correct = (round(values['total_price'] -
-                                values['total_discount'], 2) ==
-                          values['final_price'])
-            if is_correct:
-                break
-            else:
-                print('Properties were not set correctly. Try again...')
+        # Get correct values for item's properties
+        values = get_new_values(item, is_final_price_correct, props)
 
         # Set correct values in new DataFrame
         new_disc_items_df.loc[i, props] = values
