@@ -71,6 +71,79 @@ def correct_missing_properties(df, inplace=False):
     return missing_properties_df
 
 
+def get_discounted_items(df):
+    """Return DataFrame with discounted items."""
+    return df.copy().loc[~df['total_discount'].isna()]
+
+
+def correct_discounted_items(df, inplace=False):
+    """Return DataFrame with corrected wrong properties for discounted items.
+
+    The function checks the difference between calculated final price and
+    extracted final price for discounted items.
+
+    Arguments:
+        df (pd.DataFrame): reference DataFrame with items
+        inplace (bool): set whether to the reference DataFrame with new values
+            (default False)
+
+    Returns:
+        pd.DataFrame: DataFrame with corrected discounted items
+    """
+    disc_items_df = get_discounted_items(df)
+
+    # Get calculated final price
+    calc_final_price = round(disc_items_df['total_price'] -
+                             disc_items_df['total_discount'], 2)
+
+    # Get wrong items by comparing calculated price with extracted price
+    wrong_disc_items_df = disc_items_df.loc[
+        disc_items_df['final_price'] != calc_final_price]
+    if len(wrong_disc_items_df) > 0:
+        print(f'\nFound discounted items with incorrect properties...')
+    else:
+        return wrong_disc_items_df
+
+    # Correct wrong properties
+    props = ['total_price', 'total_discount', 'final_price']
+    new_disc_items_df = wrong_disc_items_df.copy()
+    for i in new_disc_items_df.index:
+        item = new_disc_items_df.loc[i]
+
+        while True:
+            print(f'\n{item[["name", *props]]}')
+
+            values = {}
+
+            for prop in props:
+                print(f'\nProperty: "{prop}", Value: {item[prop]}')
+
+                # Set new value or skip
+                value = input('Enter a new value or press Enter to skip: ')
+                if value == '':
+                    values[prop] = item[prop]
+                else:
+                    values[prop] = string_to_float(value)
+
+            # Check if new values are correct
+            is_correct = (round(values['total_price'] -
+                                values['total_discount'], 2) ==
+                          values['final_price'])
+            if is_correct:
+                break
+            else:
+                print('Properties were not set correctly. Try again...')
+
+        # Set correct values in new DataFrame
+        new_disc_items_df.loc[i, props] = values
+
+    if inplace:
+        # Update the reference DataFrame with new values
+        df.update(new_disc_items_df[props])
+
+    return new_disc_items_df
+
+
 def main():
     # Set default paths
     ROOT_FOLDERPATH = os.path.abspath(
@@ -89,9 +162,8 @@ def main():
     # Set missing properties if any exist
     missing_properties_df = correct_missing_properties(items_df, inplace=True)
 
-    # TODO: Check if discounted items properties were extracted properly
-
-    # TODO: Correct wrong properties
+    # Correct wrong properties for discounted items, if any exist
+    wrong_disc_items_df = correct_discounted_items(items_df, inplace=True)
 
     # TODO: Check if qty * unit price = total price
 
