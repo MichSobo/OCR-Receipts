@@ -33,19 +33,19 @@ class TestGetExtractedContent(unittest.TestCase):
     def test_case01(self):
         """test with not existing file"""
         self.assertRaises(FileNotFoundError,
-                          process_extracted_content.get_content,
+                          process_extracted_content.read_content,
                           'not_existing_file.xxx')
 
     def test_case02(self):
         """test with a file with wrong format"""
         from json.decoder import JSONDecodeError
         self.assertRaises(JSONDecodeError,
-                          process_extracted_content.get_content,
+                          process_extracted_content.read_content,
                           self.sample_txt_filepath)
 
     def test_case03(self):
         """test with a file with correct format"""
-        data = process_extracted_content.get_content(self.sample_json_filepath)
+        data = process_extracted_content.read_content(self.sample_json_filepath)
         self.assertTrue(isinstance(data, dict))
 
     @classmethod

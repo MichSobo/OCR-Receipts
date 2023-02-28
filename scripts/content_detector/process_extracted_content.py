@@ -7,12 +7,14 @@ discrepancies.
 import json
 import os
 
+import numpy as np
 import pandas as pd
+import pyinputplus as pyip
 
 from scripts.content_detector.process_raw_content import string_to_float
 
 
-def get_content(filepath):
+def read_content(filepath):
     """Read a JSON file with extracted content and return it as a dictionary."""
     with open(filepath) as f:
         content = json.load(f)
@@ -102,27 +104,27 @@ def correct_discounted_items(df, inplace=False):
     if len(wrong_disc_items_df) > 0:
         print(f'\nFound discounted items with incorrect properties...')
     else:
-        return wrong_disc_items_df
+        return disc_items_df
 
     # Correct wrong properties
     props = ['total_price', 'total_discount', 'final_price']
 
-    new_disc_items_df = wrong_disc_items_df.copy()
-    for i in new_disc_items_df.index:
+    correct_disc_items_df = wrong_disc_items_df.copy()
+    for i in correct_disc_items_df.index:
         # Get item
-        item = new_disc_items_df.loc[i]
+        item = correct_disc_items_df.loc[i]
 
         # Get correct values for item's properties
         values = get_new_values(item, is_final_price_correct, props)
 
         # Set correct values in new DataFrame
-        new_disc_items_df.loc[i, props] = values
+        correct_disc_items_df.loc[i, props] = values
 
     if inplace:
         # Update the reference DataFrame with new values
-        df.update(new_disc_items_df[props])
+        df.update(correct_disc_items_df[props])
 
-    return new_disc_items_df
+    return correct_disc_items_df
 
 
 def correct_wrong_items(df, inplace=False):
@@ -153,8 +155,8 @@ def correct_wrong_items(df, inplace=False):
     props_total_price = ['qty', 'unit_price', 'total_price']
     props_final_price = ['total_discount', 'final_price']
 
-    new_items_df = wrong_items_df.copy()
-    for i in new_items_df.index:
+    correct_items_df = wrong_items_df.copy()
+    for i in correct_items_df.index:
         # Get item
         item = wrong_items_df.loc[i]
 
@@ -187,13 +189,13 @@ def correct_wrong_items(df, inplace=False):
             values['final_price'] = values['total_price']
 
         # Set correct values in new DataFrame
-        new_items_df.loc[i, list(values.keys())] = values
+        correct_items_df.loc[i, list(values.keys())] = values
 
     if inplace:
         # Update the reference DataFrame with new values
-        df.update(new_items_df)
+        df.update(correct_items_df)
 
-    return new_items_df
+    return correct_items_df
 
 
 def is_final_price_correct(data):
@@ -251,6 +253,68 @@ def get_new_values(item, func, props, initial_values=None):
             print('Properties were not set correctly. Try again...')
 
 
+def get_new_item():
+    """Return a dictionary with item properties."""
+    print('\nSet properties for a new item')
+
+    item = {}
+
+    # Set name
+    item['name'] = input('name: ')
+
+    # Set qty
+    item['qty'] = string_to_float(input('quantity: '))
+
+    # Set unit price
+    item['unit_price'] = string_to_float(input('unit price: '))
+
+    # Evaluate and set total price
+    item['total_price'] = round(item['qty'] * item['unit_price'], 2)
+    print(f'total price: {item["total_price"]}')
+
+    # Set discount
+    discount = pyip.inputNum('total discount: ')
+    item['total_discount'] = None if discount == 0 else discount
+
+    # Evaluate and set final price
+    if item['discount'] is None:
+        item['final_price'] = item['total_price']
+    else:
+        item['final_price'] = item['total_price'] - item['total_discount']
+        print(f'final price: {item["final_price"]}')
+
+    return item
+
+
+def get_total_sum_diff(content, items_df=None):
+    """Return a difference between the extracted and calculated total sum."""
+    if items_df is None:
+        items_df = pd.DataFrame(content['items'])
+
+    extr_total_sum = content['total_sum']
+    calc_total_sum = items_df['final_price'].sum()
+
+    diff = round(abs(extr_total_sum - calc_total_sum), 2)
+
+    return diff
+
+
+def write_content(obj, filepath, log=True):
+    """Write an object to a JSON file."""
+    # Convert NaN to None for *total_discount* property
+    for item in obj['items']:
+        if np.isnan(item['total_discount']):
+            item['total_discount'] = None
+
+    # Write recognized content to file
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(obj, f, indent=4)
+
+    if log is True:
+        abspath = os.path.abspath(filepath)
+        print(f'\nExtracted content was written to file "{abspath}"')
+
+
 def main():
     # Set default paths
     ROOT_FOLDERPATH = os.path.abspath(
@@ -259,33 +323,72 @@ def main():
     content_folderpath = os.path.join(ROOT_FOLDERPATH, 'results',
                                       'Paragon_2022-08-11_081131_300dpi')
 
+    output_filename = 'processed_extracted_content.json'
+    output_filepath = os.path.join(content_folderpath, output_filename)
+
     # Get extracted content
     content_filepath = os.path.join(content_folderpath, 'extracted_content.json')
-    content = get_content(content_filepath)
+    content = read_content(content_filepath)
 
     # Put items in DataFrame
     items_df = pd.DataFrame(content['items'])
 
     # Set missing properties, if any exist
-    missing_properties_df = correct_missing_properties(items_df, inplace=True)
+    correct_missing_properties(items_df, inplace=True)
 
     # Correct wrong properties for discounted items, if any exist
-    wrong_disc_items_df = correct_discounted_items(items_df, inplace=True)
+    correct_discounted_items(items_df, inplace=True)
 
     # Correct wrong properties for all items, if any exist
-    wrong_items_df = correct_wrong_items(items_df, inplace=True)
-    print(wrong_items_df)
+    correct_wrong_items(items_df, inplace=True)
 
-    # TODO: Check if extracted total sum = calculated total sum
+    # Get list of items
+    content['items'] = items_df.to_dict('records')
 
-    # TODO: Check if total sum was extracted correctly
+    while True:
+        # Check if total sum is correct
+        diff = get_total_sum_diff(content, items_df)
 
-    # TODO: Check on receipt if any items missing
+        if diff == 0:
+            # Write processed content
+            print('\nExtracted data seems to be correct.')
+            write_content(content, output_filepath)
 
-    # TODO: Allow to add items
+            break
+        else:
+            print('\nExtracted and calculated total sum are not equal')
+            print(f'The difference is: {diff}')
 
+            # Check if extracted total sum is correct
+            print(f'\nExtracted total sum is: {content["total_sum"]}')
+            is_correct = pyip.inputYesNo('Is it correct?\n')
+            if is_correct == 'yes':
+                print('\nPlease check if all items were added...')
+                do_add_items = pyip.inputYesNo('\nDo you want to add more items?')
+                if do_add_items == 'yes':
+                    # Add more items
+                    new_items = []
+                    while True:
+                        # Get new item
+                        new_item = get_new_item()
 
+                        # Add new item to list
+                        new_items.append(new_item)
 
+                        do_add_items = pyip.inputYesNo('\nDo you want to add more items?')
+                        if do_add_items == 'no':
+                            break
+                else:
+                    print('\nProcessed content with detected problems will be saved')
+
+                    # Write processed content with errors
+                    write_content(content, output_filepath)
+
+                    break
+            else:
+                # Set correct total sum
+                new_total_sum = string_to_float(input('\nSet correct total sum: '))
+                content['total_sum'] = new_total_sum
 
 
 if __name__ == '__main__':
