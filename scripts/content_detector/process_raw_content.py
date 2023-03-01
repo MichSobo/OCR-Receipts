@@ -5,6 +5,7 @@ import json
 import os
 import re
 
+from scripts.content_detector.misc import string_to_float
 
 # Define regex patterns
 ITEM_REGEX = re.compile(r'''
@@ -24,23 +25,32 @@ QTY_REGEX = re.compile(r'(\d+)([,. ]+(\d{,3}))?')
 PRICE_REGEX = re.compile(r'(\w+)[,. ]+(\w{,2})')
 
 
+def read_raw_content(input_filepath, log=True):
+    with open(input_filepath, encoding='utf-8') as f:
+        raw_content = f.read()
+
+    if log:
+        path = os.path.abspath(input_filepath)
+        print(f'Raw content was read from file "{path}"')
+
+    return raw_content
+
+
 def preprocess_text(text):
     """Return pre-processed text with replaced commonly incorrect characters."""
+    # Define mapper correct -> wrong
+    mapper = {
+        '1': ['(', '{'],
+        'x': ['«', '¥'],
+        '-': ['~'],
+        'P': ['?']
+    }
+
     new_text = text
 
-    # Replace characters incorrectly recognized as "1"
-    new_text = new_text.replace('(', '1')
-    new_text = new_text.replace('{', '1')
-
-    # Replace characters incorrectly recognized as "x"
-    new_text = new_text.replace('«', 'x')
-    new_text = new_text.replace('¥', 'x')
-
-    # Replace characters incorrectly recognized as "-"
-    new_text = new_text.replace('~', '-')
-
-    # Replace characters incorrectly recognized as "?"
-    new_text = new_text.replace('?', 'P')
+    for replace_with, to_be_replaced in mapper.items():
+        for char in to_be_replaced:
+            new_text = new_text.replace(char, replace_with)
 
     return new_text
 
@@ -104,49 +114,6 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
         return value_if_not_recognized
 
 
-def string_to_float(string, log=True, item_string=None, do_correct=True):
-    """Return float from string.
-
-    Arguments:
-        string (str): string to convert to float
-        log (bool): set whether to print log messages (default True)
-        item_string (str): string to be printed with error message (default None)
-        do_correct (bool): set whether to ask user for correct values (default
-            True)
-
-    Returns:
-        float if conversion was successful, False otherwise
-    """
-
-    def get_correct_value():
-        """Get a correct value for quantity or price from user."""
-        while True:
-            user_input = input('\nEnter a valid number: ')
-            try:
-                float_user_input = float(user_input)
-            except ValueError:
-                print('Wrong input! Try again.')
-            else:
-                return float_user_input
-
-    try:
-        value = float(string)
-    except ValueError as e:
-        if log:
-            # Print log messages
-            if item_string:
-                print(f'\nError occurred for item: "{item_string}"')
-            print(e)
-
-        if do_correct:
-            # Interactively get correct the value
-            value = get_correct_value()
-        else:
-            value = False
-    finally:
-        return value
-
-
 def get_qty(string):
     """Return quantity string in proper format from another string."""
     r = QTY_REGEX.match(string).groups()
@@ -160,7 +127,8 @@ def get_qty(string):
 def get_price(string, is_discount=False):
     """Return price string in proper format from another string."""
     pattern = DISCOUNT_REGEX if is_discount else PRICE_REGEX
-    r = pattern.match(string).groups()
+    # r = pattern.match(string).groups()
+    r = pattern.search(string).groups()
 
     return f'{r[0]}.{r[1]}'
 
@@ -233,7 +201,6 @@ def get_items(text, log=True, do_correct=True):
             item['total_discount'] = string_to_float(discount, log, item_line, do_correct)
             item['final_price'] = string_to_float(final_price, log, item_line, do_correct)
 
-
         # Add item to list of items
         items.append(item)
 
@@ -266,11 +233,11 @@ def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
             return value_if_not_recognized
 
 
-def get_extracted_content(input_filepath,
-                          log=True,
-                          do_correct=True,
-                          do_save=True,
-                          output_filepath='extracted_content.json'):
+def extract_content(input_filepath,
+                    log=True,
+                    do_correct=True,
+                    do_save=True,
+                    output_filepath='extracted_content.json'):
     """Return a dictionary with extracted content.
 
     The extracted content items are put in a dictionary as:
@@ -281,7 +248,7 @@ def get_extracted_content(input_filepath,
     - 'total_sum' - total sum on the receipt.
 
     Arguments:
-        input_filepath (str): path
+        input_filepath (str): path to a text file with recognized image content
         log (bool): set whether to print log messages (default True)
         do_correct (bool): set whether to ask user for correct values (default True)
         do_save (bool): set whether to save the extracted content to a JSON file
@@ -292,18 +259,10 @@ def get_extracted_content(input_filepath,
         dict: dictionary with extracted content
     """
     # Read raw content
-    with open(input_filepath, encoding='utf-8') as f:
-        raw_content = f.read()
-
-    if log:
-        path = os.path.abspath(input_filepath)
-        print(f'Raw content was read from file "{path}"')
-
-    # Get the main body of the receipt
-    raw_content_main = raw_content.split('PARAGON FISKALNY\n')[1]
+    raw_content = read_raw_content(input_filepath, log)
 
     # Replace common wrong characters
-    content = preprocess_text(raw_content_main)
+    content = preprocess_text(raw_content)
 
     # Get shop name
     shop_name = get_shop_name(raw_content, do_correct=do_correct)
@@ -312,14 +271,14 @@ def get_extracted_content(input_filepath,
     items = get_items(content, log=log, do_correct=do_correct)
 
     # Get total sum
-    total_sum = get_total_sum(raw_content_main, do_correct=do_correct)
+    total_sum = get_total_sum(raw_content, do_correct=do_correct)
 
     # Set result dictionary
     extracted_content = {
         'content_filepath': input_filepath,
-        'shop_name': shop_name,
-        'items': items,
-        'total_sum': total_sum
+        'shop_name':        shop_name,
+        'items':            items,
+        'total_sum':        total_sum
     }
 
     if do_save is True:
@@ -339,15 +298,19 @@ def main():
     ROOT_FOLDERPATH = os.path.abspath(
         os.path.join(os.path.dirname(__file__), '../..'))
 
-    # Set path to raw content
     content_folderpath = os.path.join('results', 'Paragon_2022-08-11_081131_300dpi')
-    content_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, 'raw_content.txt')
+
+    # Set path to raw content
+    content_filename = 'raw_content.txt'
+    content_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, content_filename)
 
     # Get extracted content
     output_filename = 'extracted_content.json'
     output_filepath = os.path.join(ROOT_FOLDERPATH, content_folderpath, output_filename)
-    extracted_content = get_extracted_content(content_filepath, log=True,
-                                              output_filepath=output_filepath)
+
+    extract_content(content_filepath,
+                    log=True,
+                    output_filepath=output_filepath)
 
 
 if __name__ == '__main__':

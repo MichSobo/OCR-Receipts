@@ -12,8 +12,8 @@ Content retrieving procedure:
 4. Save the content to file
 """
 import argparse
-import os
 import functools
+import os
 import sys
 
 import cv2 as cv
@@ -21,7 +21,9 @@ import imutils
 import pytesseract
 from imutils.perspective import four_point_transform
 
+
 LOG = True
+
 
 class Image:
     """Class that represents an image."""
