@@ -1,5 +1,5 @@
 """
-Script for extracting relevant data from recognized receipt content.
+Code for extracting relevant data from recognized receipt content.
 """
 import json
 import os
