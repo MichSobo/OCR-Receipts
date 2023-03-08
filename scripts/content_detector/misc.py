@@ -10,6 +10,7 @@ def string_to_float(string, log=True, item_string=None, do_correct=True):
 
     Returns:
         float if conversion was successful, False otherwise
+
     """
 
     def get_correct_value():
