@@ -8,21 +8,21 @@ import re
 from scripts.content_detector.misc import string_to_float
 
 
-def read_raw_content(filepath):
+def read_raw_content(path):
     """Read a file with raw content and return it as a string.
 
     Arguments:
-        filepath (str): path to the file with raw content
+        path (str): path to the file with raw content
 
     Returns:
         str: file content as a string
 
     """
-    with open(filepath, encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         raw_content = f.read()
 
-    path = os.path.abspath(filepath)
-    print(f'Raw content was read from file "{path}"')
+    abspath = os.path.abspath(path)
+    print(f'Raw content was read from file "{abspath}"')
 
     return raw_content
 

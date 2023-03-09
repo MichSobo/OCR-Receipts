@@ -395,6 +395,3 @@ else:
     DEBUG_MODE = False
     SAVE_PROC_IMG = False
     WRITE_IMG_CONTENT = False
-
-
-

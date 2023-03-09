@@ -14,20 +14,23 @@ import pyinputplus as pyip
 from scripts.content_detector.misc import string_to_float
 
 
-def read_content(filepath):
-    """Read a JSON file with extracted content and return it as a dictionary."""
-    with open(filepath) as f:
+def read_content(path):
+    """Read a file with raw content and return it as a string.
+
+    Arguments:
+        path (str): path to the file with raw content
+
+    Returns:
+        dict: dictionary with file content
+
+    """
+    with open(path) as f:
         content = json.load(f)
 
-    abspath = os.path.abspath(filepath)
+    abspath = os.path.abspath(path)
     print(f'Extracted content was read from file "{abspath}"')
 
     return content
-
-
-def get_missing_properties(df):
-    """Return DataFrame with items that are missing properties."""
-    return df.copy().loc[(df == False).any(axis=1)]
 
 
 def correct_missing_properties(df, inplace=False):
@@ -37,13 +40,15 @@ def correct_missing_properties(df, inplace=False):
 
     Arguments:
         df (pd.DataFrame): reference DataFrame with items
-        inplace (bool): set whether to the reference DataFrame with new values
-            (default False)
+        inplace (bool): set whether to fill in-place (default False)
 
     Returns:
         pd.DataFrame: DataFrame with missing properties filled in
+
     """
-    missing_properties_df = get_missing_properties(df)
+    # Get DataFrame with items missing properties
+    missing_properties_df = df.copy().loc[(df == False).any(axis=1)]
+
     if len(missing_properties_df) > 0:
         print(f'\nFound items with missing properties...')
     else:
@@ -73,26 +78,23 @@ def correct_missing_properties(df, inplace=False):
     return missing_properties_df
 
 
-def get_discounted_items(df):
-    """Return DataFrame with discounted items."""
-    return df.copy().loc[~df['total_discount'].isna()]
-
-
 def correct_discounted_items(df, inplace=False):
-    """Return DataFrame with corrected wrong properties for discounted items.
+    """Return DataFrame with corrected properties for discounted items.
 
-    The function checks the difference between calculated final price and
-    extracted final price for discounted items.
+    The function checks the difference between calculated and extracted final
+    price for discounted items. If the difference is not zero, user will be
+    asked to enter correct properties.
 
     Arguments:
         df (pd.DataFrame): reference DataFrame with items
-        inplace (bool): set whether to the reference DataFrame with new values
-            (default False)
+        inplace (bool): set whether to fill in-place (default False)
 
     Returns:
         pd.DataFrame: DataFrame with corrected discounted items
+
     """
-    disc_items_df = get_discounted_items(df)
+    # Get discounted items
+    disc_items_df = df.copy().loc[~df['total_discount'].isna()]
 
     # Get calculated final price
     calc_final_price = round(disc_items_df['total_price'] -
@@ -128,18 +130,19 @@ def correct_discounted_items(df, inplace=False):
 
 
 def correct_wrong_items(df, inplace=False):
-    """Return DataFrame with corrected wrong properties for all items.
+    """Return DataFrame with corrected properties.
 
     The function checks the difference between calculated total price and
-    extracted final price, including discount.
+    extracted final price for all items, including discount. If the difference
+    is not zero, user will be asked to enter correct properties.
 
     Arguments:
         df (pd.DataFrame): reference DataFrame with items
-        inplace (bool): set whether to update the reference DataFrame with new
-            values (default False)
+        inplace (bool): set whether to fill in-place (default False)
 
     Returns:
         pd.DataFrame: DataFrame with corrected items
+
     """
     # Get calculated total price
     calc_total_price = round(df['qty'] * df['unit_price'], 2)
@@ -199,7 +202,19 @@ def correct_wrong_items(df, inplace=False):
 
 
 def is_final_price_correct(data):
-    """Return True if final price is correct, False otherwise."""
+    """Check if the final price for item is correct.
+
+    The check is done by comparing the calculated final price (item total price
+    minus item total discount) with the extracted one.
+
+    Arguments:
+        data (dict): dictionary with single item properties
+
+    Returns:
+        bool: True if calculated final price equals the extracted one, False
+            otherwise
+
+    """
     calculated = round(data['total_price'] - data['total_discount'], 2)
     extracted = data['final_price']
 
@@ -207,7 +222,19 @@ def is_final_price_correct(data):
 
 
 def is_total_price_correct(data):
-    """Return True if total price is correct, False otherwise."""
+    """Check if the total price for item is correct.
+
+    The check is done by comparing the calculated total price (item quantity
+    multiplied by item unit price) with the extracted one.
+
+    Arguments:
+        data (dict): dictionary with single item properties
+
+    Returns:
+        bool: True if calculated total price equals the extracted one, False
+            otherwise
+
+    """
     calculated = round(data['qty'] * data['unit_price'], 2)
     extracted = data['total_price']
 
@@ -254,7 +281,7 @@ def get_new_values(item, func, props, initial_values=None):
 
 
 def get_new_item():
-    """Return a dictionary with item properties."""
+    """Return a dictionary with item properties set interactively by a user."""
     print('\nSet properties for a new item')
 
     item = {}
@@ -268,7 +295,7 @@ def get_new_item():
     # Set unit price
     item['unit_price'] = string_to_float(input('unit price: '))
 
-    # Evaluate and set total price
+    # Evaluate and set total price based on qty and unit price
     item['total_price'] = round(item['qty'] * item['unit_price'], 2)
     print(f'total price: {item["total_price"]}')
 
@@ -287,7 +314,14 @@ def get_new_item():
 
 
 def get_total_sum_diff(content, items_df=None):
-    """Return a difference between the extracted and calculated total sum."""
+    """Return difference between the extracted and calculated total sum.
+
+    Arguments:
+        content (dict): dictionary with extracted receipt content
+        items_df (pd.DataFrame): DataFrame for total sum calculation (default
+            None)
+
+    """
     if items_df is None:
         items_df = pd.DataFrame(content['items'])
 
@@ -299,36 +333,44 @@ def get_total_sum_diff(content, items_df=None):
     return diff
 
 
-def write_content(obj, filepath, log=True):
-    """Write an object to a JSON file."""
+def write_content(obj, path):
+    """Write a dictionary to a JSON file.
+
+    Arguments:
+        obj (dict): object to write to JSON
+        path (str): path to the output file
+
+    """
     # Convert NaN to None for *total_discount* property
     for item in obj['items']:
         if np.isnan(item['total_discount']):
             item['total_discount'] = None
 
     # Write recognized content to file
-    with open(filepath, 'w', encoding='utf-8') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(obj, f, indent=4)
 
-    if log is True:
-        abspath = os.path.abspath(filepath)
-        print(f'\nExtracted content was written to file "{abspath}"')
+    abspath = os.path.abspath(path)
+    print(f'\nExtracted content was written to file "{abspath}"')
 
 
-def main():
-    # Set default paths
-    ROOT_FOLDERPATH = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '../..'))
+def process_content(input_path, do_save=True, output_path='processed_content.json'):
+    """Process extracted receipt content return it as a dictionary.
 
-    content_folderpath = os.path.join(ROOT_FOLDERPATH, 'results',
-                                      'Paragon_2022-08-11_081131_300dpi')
+    The function checks the validity of extracted content and makes adjustments
+    to extracted properties with the help of a user.
 
-    output_filename = 'processed_extracted_content.json'
-    output_filepath = os.path.join(content_folderpath, output_filename)
+    Arguments:
+        input_path (str): path to JSON file with extracted content
+        do_save (bool): set whether to save the processed content to a JSON file
+            (default True)
+        output_path (str): path to the output file (default extracted_content.txt)
 
-    # Get extracted content
-    content_filepath = os.path.join(content_folderpath, 'extracted_content.json')
-    content = read_content(content_filepath)
+    Return:
+        dict: dictionary with extracted content
+
+    """
+    content = read_content(input_path)
 
     # Put items in DataFrame
     items_df = pd.DataFrame(content['items'])
@@ -345,16 +387,18 @@ def main():
     # Get list of items
     content['items'] = items_df.to_dict('records')
 
+    # Check the whole content
     while True:
         # Check if total sum is correct
         diff = get_total_sum_diff(content, items_df)
 
         if diff == 0:
             # Write processed content
-            print('\nExtracted data seems to be correct.')
-            write_content(content, output_filepath)
+            print('\nExtracted data seems to be correct')
+            if do_save:
+                write_content(content, output_path)
 
-            break
+            return content
         else:
             print('\nExtracted and calculated total sum are not equal')
             print(f'The difference is: {diff}')
@@ -364,7 +408,7 @@ def main():
             is_correct = pyip.inputYesNo('Is it correct?\n')
             if is_correct == 'yes':
                 print('\nPlease check if all items were added...')
-                do_add_items = pyip.inputYesNo('\nDo you want to add more items?')
+                do_add_items = pyip.inputYesNo('\nDo you want to add items?')
                 if do_add_items == 'yes':
                     # Add more items
                     new_items = []
@@ -375,20 +419,49 @@ def main():
                         # Add new item to list
                         new_items.append(new_item)
 
-                        do_add_items = pyip.inputYesNo('\nDo you want to add more items?')
+                        do_add_items = pyip.inputYesNo('\nDo you want to add items?')
                         if do_add_items == 'no':
-                            break
+                            # Check if added items repair the situation
+                            new_items_df = pd.DataFrame([items_df, new_items])
+                            diff = get_total_sum_diff(content, new_items_df)
+                            if diff == 0:
+                                print('\nData seems to be correct now')
+                                content['items'].update(new_items)
+                                if do_save:
+                                    write_content(content, output_path)
+
+                                return content
+                            else:
+                                print('\nIt looks like still there are errors')
                 else:
-                    print('\nProcessed content with detected problems will be saved')
+                    if do_save:
+                        print('\nContent with invalid properties will be saved')
+                        write_content(content, output_path)
 
-                    # Write processed content with errors
-                    write_content(content, output_filepath)
-
-                    break
+                    return content
             else:
                 # Set correct total sum
-                new_total_sum = string_to_float(input('\nSet correct total sum: '))
+                new_total_sum = string_to_float(
+                    input('\nSet correct total sum: '))
                 content['total_sum'] = new_total_sum
+
+
+def main():
+    # Set default paths
+    ROOT_FOLDERPATH = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../..'))
+
+    content_folderpath = os.path.join(ROOT_FOLDERPATH, 'results',
+                                      'Paragon_2022-08-11_081131_300dpi')
+
+    output_filename = 'processed_extracted_content.json'
+    output_filepath = os.path.join(content_folderpath, output_filename)
+
+    # Get extracted content
+    content_filepath = os.path.join(content_folderpath, 'extracted_content.json')
+
+    processed_content = process_content(content_filepath,
+                                        output_path=output_filepath)
 
 
 if __name__ == '__main__':
