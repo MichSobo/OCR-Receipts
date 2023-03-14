@@ -1,9 +1,8 @@
-def string_to_float(string, log=True, item_string=None, do_correct=True):
+def string_to_float(string, item_string=None, do_correct=True):
     """Return float from string.
 
     Arguments:
         string (str): string to convert to float
-        log (bool): set whether to print log messages (default True)
         item_string (str): string to be printed with error message (default None)
         do_correct (bool): set whether to ask user for correct values (default
             True)
@@ -27,11 +26,10 @@ def string_to_float(string, log=True, item_string=None, do_correct=True):
     try:
         value = float(string)
     except ValueError as e:
-        if log:
-            # Print log messages
-            if item_string:
-                print(f'\nError occurred for item: "{item_string}"')
-            print(e)
+        # Print log messages
+        if item_string:
+            print(f'\nError occurred for item: "{item_string}"')
+        print(e)
 
         if do_correct:
             # Interactively get correct the value

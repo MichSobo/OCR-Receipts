@@ -171,12 +171,11 @@ def get_price(string, is_discount=False):
     return f'{match[0]}.{match[1]}'
 
 
-def get_item(text, log=True, do_correct=True):
+def get_item(text, do_correct=True):
     """Get item properties from text and return it as a dictionary.
 
     Arguments:
         text (str): text for item properties extraction
-        log (bool): set whether to print log messages (default True)
         do_correct (bool): set whether to interactively correct invalid values
             (default True)
 
@@ -210,7 +209,7 @@ def get_item(text, log=True, do_correct=True):
 
     # Convert properties from string to numeric
     for key in ('qty', 'unit_price', 'total_price'):
-        value = string_to_float(item[key], log, text, do_correct)
+        value = string_to_float(item[key], text, do_correct)
         item[key] = value
 
     # Set final price as total price
@@ -219,7 +218,7 @@ def get_item(text, log=True, do_correct=True):
     return item
 
 
-def get_items(text, log=True, do_correct=True):
+def get_items(text, do_correct=True):
     """Return a list of shop items extracted from text.
 
     Each item is a dictionary with the following attributes:
@@ -232,7 +231,6 @@ def get_items(text, log=True, do_correct=True):
 
     Arguments:
         text (str): input string from which data will be extracted
-        log (bool): set whether to print log messages (default True)
         do_correct (bool): set whether to interactively correct invalid values
             (default True)
 
@@ -247,7 +245,7 @@ def get_items(text, log=True, do_correct=True):
         item_line = line[0]
 
         # Get item properties
-        item = get_item(item_line, log, do_correct)
+        item = get_item(item_line, do_correct)
         if item is None:
             continue
 
@@ -258,8 +256,8 @@ def get_items(text, log=True, do_correct=True):
             final_price = get_price(final_price_line)
 
             # Update properties
-            item['total_discount'] = string_to_float(discount, log, item_line, do_correct)
-            item['final_price'] = string_to_float(final_price, log, item_line, do_correct)
+            item['total_discount'] = string_to_float(discount, item_line, do_correct)
+            item['final_price'] = string_to_float(final_price, item_line, do_correct)
 
         # Add item to list of items
         items.append(item)
@@ -298,7 +296,6 @@ def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
 
 
 def extract_content(input_filepath,
-                    log=True,
                     do_correct=True,
                     do_save=True,
                     output_filepath='extracted_content.json'):
@@ -313,7 +310,6 @@ def extract_content(input_filepath,
 
     Arguments:
         input_filepath (str): path to a text file with recognized image content
-        log (bool): set whether to print log messages (default True)
         do_correct (bool): set whether to ask user for correct values
             (default True)
         do_save (bool): set whether to save the extracted content to a JSON file
@@ -335,7 +331,7 @@ def extract_content(input_filepath,
     shop_name = get_shop_name(raw_content, do_correct=do_correct)
 
     # Get items
-    items = get_items(content, log=log, do_correct=do_correct)
+    items = get_items(content, do_correct=do_correct)
 
     # Get total sum
     total_sum = get_total_sum(raw_content, do_correct=do_correct)
@@ -353,9 +349,8 @@ def extract_content(input_filepath,
         with open(output_filepath, 'w', encoding='utf-8') as f:
             json.dump(extracted_content, f, indent=4)
 
-        if log is True:
-            abspath = os.path.abspath(output_filepath)
-            print(f'\nExtracted content was written to file "{abspath}"')
+        abspath = os.path.abspath(output_filepath)
+        print(f'\nExtracted content was written to file "{abspath}"')
 
     return extracted_content
 
@@ -378,8 +373,7 @@ def main():
     output_filepath = os.path.join(ROOT_FOLDERPATH,
                                    content_folderpath, output_filename)
 
-    extract_content(content_filepath,
-                    log=True, output_filepath=output_filepath)
+    extract_content(content_filepath, output_filepath=output_filepath)
 
 
 if __name__ == '__main__':

@@ -22,9 +22,6 @@ import pytesseract
 from imutils.perspective import four_point_transform
 
 
-LOG = True
-
-
 class Image:
     """Class that represents an image."""
 
@@ -43,8 +40,7 @@ class Image:
 
         img = cv.imread(path)
 
-        if LOG:
-            print(f'Image was read from file: "{os.path.abspath(path)}"')
+        print(f'Image was read from file: "{os.path.abspath(path)}"')
 
         return cls(img)
 
@@ -77,8 +73,8 @@ class Image:
                                                  proc_img_filename)
                 cv.imwrite(proc_img_filepath, proc_img.img)
 
-                if LOG:
-                    print(f'Image was saved to file "{os.path.abspath(proc_img_filepath)}"')
+                path = os.path.abspath(proc_img_filepath)
+                print(f'Image was saved to file "{path}"')
 
             return proc_img
 
@@ -249,7 +245,8 @@ class Image:
         Arguments:
             save (bool): set whether to save the recognized content to a file
                 (default True)
-            output_filepath (str): path to the output file (default raw_content.txt)
+            output_filepath (str): path to the output file
+                (default raw_content.txt)
         """
         content = pytesseract.image_to_string(
             cv.cvtColor(self.img, cv.COLOR_BGR2RGB), config='--psm 4')
@@ -259,9 +256,8 @@ class Image:
             with open(output_filepath, 'w', encoding='utf-8') as f:
                 f.write(content)
 
-            if LOG is True:
-                print(f'Recognized image content was written to file '
-                      f'"{os.path.abspath(output_filepath)}"')
+            path = os.path.abspath(output_filepath)
+            print(f'Recognized image content was written to file "{path}"')
 
         return content
 
