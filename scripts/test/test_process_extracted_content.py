@@ -6,7 +6,7 @@ import os
 import shutil
 import unittest
 
-from scripts.content_detector import process_extracted_content
+from scripts.content_processor import process_extracted_content
 
 
 ROOT_FOLDERPATH = os.path.abspath(

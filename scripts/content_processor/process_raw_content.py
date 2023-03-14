@@ -5,7 +5,7 @@ import json
 import os
 import re
 
-from scripts.content_detector.misc import string_to_float
+from scripts.content_processor.misc import string_to_float
 
 
 def read_raw_content(path):

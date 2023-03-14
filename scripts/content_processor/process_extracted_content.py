@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import pyinputplus as pyip
 
-from scripts.content_detector.misc import string_to_float
+from scripts.content_processor.misc import string_to_float
 
 
 def read_content(path):

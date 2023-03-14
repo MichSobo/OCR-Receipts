@@ -5,7 +5,7 @@ import os
 import shutil
 import unittest
 
-from scripts.content_detector import process_image
+from scripts.content_processor import process_image
 process_image.LOG = False
 
 TEST_IMG_FILEPATH = 'test_img.jpg'

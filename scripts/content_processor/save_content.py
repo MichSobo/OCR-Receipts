@@ -148,7 +148,7 @@ def save_content_in_db(content):
 def main():
     # Set paths
     ROOT_FOLDERPATH = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), './..'))
+        os.path.join(os.path.dirname(__file__), '../..'))
 
     content_folderpath = os.path.join(ROOT_FOLDERPATH, 'results',
                                       'Paragon_2022-08-11_081131_300dpi')
