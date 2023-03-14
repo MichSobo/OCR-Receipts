@@ -1,6 +1,7 @@
-"""Code for interacting with MySQL database."""
+"""
+Code for interacting with MySQL database.
+"""
 import os
-import pprint
 
 import mysql.connector
 
@@ -30,10 +31,12 @@ def connect(**kwargs):
 
 
 def get_item_by_name(cursor, table, name):
-    query = f'SELECT * FROM {table} WHERE name = "{name}";'
+    query = f'SELECT * FROM {table} WHERE name = "{name}"'
     cursor.execute(query)
 
-    return cursor.fetchall()
+    a = cursor.fetchall()
+
+    return a
 
 
 def add_invalid_item_name(cursor, name, valid_name):
@@ -43,7 +46,7 @@ def add_invalid_item_name(cursor, name, valid_name):
 
 def add_existing_invalid_item_name(cursor, name):
     # Update invalid name count
-    query = f'UPDATE invalid_item SET count = count + 1 WHERE name = {name}'
+    query = f'UPDATE invalid_item SET count = count + 1 WHERE name = "{name}"'
     cursor.execute(query)
 
 
@@ -98,13 +101,3 @@ def add_item(cursor, receipt_id, name, qty, unit_price, total_discount):
 
     query = f'INSERT INTO all_items ({columns_str}) VALUES ({values_str})'
     cursor.execute(query)
-
-
-if __name__ == '__main__':
-    printer = pprint.PrettyPrinter(indent=1)
-
-    cnx, cursor = connect(option_files='..\\my.ini', database='shopping', use_pure=True)
-
-
-    cursor.close()
-    cnx.close()
