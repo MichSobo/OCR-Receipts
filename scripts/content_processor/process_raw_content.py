@@ -296,9 +296,10 @@ def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
 
 
 def extract_content(input_filepath,
+                    img_content=None,
                     do_correct=True,
                     do_save=True,
-                    output_filepath='extracted_content.json'):
+                    output_folderpath=''):
     """Extract content from raw text and return it as a dictionary.
 
     The extracted content items are put in a dictionary as:
@@ -310,19 +311,19 @@ def extract_content(input_filepath,
 
     Arguments:
         input_filepath (str): path to a text file with recognized image content
+        img_content (str): recognized image content (default None)
         do_correct (bool): set whether to ask user for correct values
             (default True)
         do_save (bool): set whether to save the extracted content to a JSON file
             (default True)
-        output_filepath (str): path to the output file (default
-            extracted_content.txt)
+        output_folderpath (str): path to the output folder (default '')
 
     Return:
         dict: dictionary with extracted content
 
     """
     # Read raw content
-    raw_content = read_raw_content(input_filepath)
+    raw_content = img_content if img_content else read_raw_content(input_filepath)
 
     # Replace common wrong characters
     content = replace_invalid_chars(raw_content)
@@ -346,6 +347,7 @@ def extract_content(input_filepath,
 
     if do_save is True:
         # Write recognized content to file
+        output_filepath = os.path.join(output_folderpath, 'extracted_content.json')
         with open(output_filepath, 'w', encoding='utf-8') as f:
             json.dump(extracted_content, f, indent=4)
 
@@ -369,11 +371,10 @@ def main():
                                     content_folderpath, content_filename)
 
     # Get extracted content
-    output_filename = 'extracted_content.json'
-    output_filepath = os.path.join(ROOT_FOLDERPATH,
-                                   content_folderpath, output_filename)
+    output_folderpath = os.path.join(ROOT_FOLDERPATH, content_folderpath)
 
-    extract_content(content_filepath, output_filepath=output_filepath)
+    extract_content(content_filepath,
+                    output_folderpath=output_folderpath)
 
 
 if __name__ == '__main__':

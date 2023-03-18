@@ -332,12 +332,12 @@ def get_total_sum_diff(content, items_df=None):
     return diff
 
 
-def write_content(obj, path):
+def write_content(obj, output_folderpath):
     """Write a dictionary to a JSON file.
 
     Arguments:
         obj (dict): object to write to JSON
-        path (str): path to the output file
+        output_folderpath (str): path to the output file
 
     """
     # Convert NaN to None for *total_discount* property
@@ -346,30 +346,38 @@ def write_content(obj, path):
             item['total_discount'] = None
 
     # Write recognized content to file
-    with open(path, 'w', encoding='utf-8') as f:
+    output_filepath = os.path.join(output_folderpath, 'processed_content.json')
+    with open(output_folderpath, 'w', encoding='utf-8') as f:
         json.dump(obj, f, indent=4)
 
-    abspath = os.path.abspath(path)
+    abspath = os.path.abspath(output_filepath)
     print(f'\nExtracted content was written to file "{abspath}"')
 
 
-def process_content(input_path, do_save=True, output_path='processed_content.json'):
+def process_content(input_content, do_save=True, output_folderpath=''):
     """Process extracted receipt content return it as a dictionary.
 
     The function checks the validity of extracted content and makes adjustments
     to extracted properties with the help of a user.
 
     Arguments:
-        input_path (str): path to JSON file with extracted content
+        input_content (Union[str, dict]): path to JSON file with extracted or
+            extracted content itself
         do_save (bool): set whether to save the processed content to a JSON file
             (default True)
-        output_path (str): path to the output file (default extracted_content.txt)
+        output_folderpath (str): path to the output folder (default '')
 
     Return:
         dict: dictionary with extracted content
 
     """
-    content = read_content(input_path)
+    if isinstance(input_content, str):
+        content = read_content(input_content)
+    elif isinstance(input_content, dict):
+        content = input_content
+    else:
+        raise ValueError(
+            f'Incorrect "input_content" argument type: {type(input_content)}')
 
     # Put items in DataFrame
     items_df = pd.DataFrame(content['items'])
@@ -395,7 +403,7 @@ def process_content(input_path, do_save=True, output_path='processed_content.jso
             # Write processed content
             print('\nExtracted data seems to be correct')
             if do_save:
-                write_content(content, output_path)
+                write_content(content, output_folderpath)
 
             return content
         else:
@@ -427,7 +435,7 @@ def process_content(input_path, do_save=True, output_path='processed_content.jso
                                 print('\nData seems to be correct now')
                                 content['items'].update(new_items)
                                 if do_save:
-                                    write_content(content, output_path)
+                                    write_content(content, output_folderpath)
 
                                 return content
                             else:
@@ -435,7 +443,7 @@ def process_content(input_path, do_save=True, output_path='processed_content.jso
                 else:
                     if do_save:
                         print('\nContent with invalid properties will be saved')
-                        write_content(content, output_path)
+                        write_content(content, output_folderpath)
 
                     return content
             else:
@@ -454,13 +462,12 @@ def main():
                                       'Paragon_2022-08-11_081131_300dpi')
 
     output_filename = 'processed_extracted_content.json'
-    output_filepath = os.path.join(content_folderpath, output_filename)
+    output_folderpath = os.path.join(content_folderpath, output_filename)
 
     # Get extracted content
     content_filepath = os.path.join(content_folderpath, 'extracted_content.json')
-
     processed_content = process_content(content_filepath,
-                                        output_path=output_filepath)
+                                        output_folderpath=output_folderpath)
 
 
 if __name__ == '__main__':

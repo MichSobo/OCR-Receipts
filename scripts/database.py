@@ -34,9 +34,7 @@ def get_item_by_name(cursor, table, name):
     query = f'SELECT * FROM {table} WHERE name = "{name}"'
     cursor.execute(query)
 
-    a = cursor.fetchall()
-
-    return a
+    return cursor.fetchall()
 
 
 def add_invalid_item_name(cursor, name, valid_name):
@@ -85,6 +83,16 @@ def add_receipt(cursor,
     cursor.execute(query)
 
     return cursor.lastrowid
+
+
+def get_receipts(cursor):
+    query = f'SELECT image_name FROM receipt'
+    cursor.execute(query)
+
+    result = cursor.fetchall()
+    filenames = [row['image_name'] for row in result]
+
+    return filenames
 
 
 def add_item(cursor, receipt_id, name, qty, unit_price, total_discount):
