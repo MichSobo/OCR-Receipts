@@ -81,10 +81,11 @@ def is_unit_price_valid(df):
         return False
 
 
-def save_content_in_db(content):
-    # Connect to database
-    connection, cursor = database.connect(option_files='..\\my.ini',
-                                          database='shopping')
+def save_content_in_db(content, connection=None, cursor=None):
+    if connection is None or cursor is None:
+        # Connect to database
+        connection, cursor = database.connect(option_files='..\\my.ini',
+                                              database='shopping')
 
     # Get content
     if isinstance(content, dict):
@@ -141,8 +142,10 @@ def save_content_in_db(content):
                           total_discount=row['total_discount'])
 
     connection.commit()
-    cursor.close()
-    connection.close()
+
+    if connection is None or cursor is None:
+        cursor.close()
+        connection.close()
 
 
 def main():
