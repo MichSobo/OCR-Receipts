@@ -68,7 +68,7 @@ class Application:
             else:
                 raise NotImplementedError
 
-    def extract_content(self):
+    def extract_content(self, save_proc_imgs=False):
         """Extract content of receipt image."""
         # Get image names from receipt images folder
         source_imgs = [filename for filename in os.listdir(self.raw_imgs_folderpath)
@@ -139,9 +139,12 @@ class Application:
                     print('Entered path does not refer to an existing file')
 
         # Set directories for output files
-        proc_imgs_folderpath = os.path.join(self.proc_imgs_folderpath,
-                                            os.path.splitext(img_filename)[0])
-        os.makedirs(proc_imgs_folderpath)
+        if save_proc_imgs:
+            proc_imgs_folderpath = os.path.join(self.proc_imgs_folderpath,
+                                                os.path.splitext(img_filename)[0])
+            os.makedirs(proc_imgs_folderpath, exist_ok=True)
+        else:
+            proc_imgs_folderpath = ''
 
         output_folderpath = os.path.join(self.out_folderpath,
                                          os.path.splitext(img_filename)[0])
@@ -150,6 +153,7 @@ class Application:
         # Recognize image content
         raw_content = process_image.get_img_content(
             img_filepath,
+            save_proc_imgs=save_proc_imgs,
             proc_imgs_folderpath=proc_imgs_folderpath,
             output_folderpath=output_folderpath
         )
