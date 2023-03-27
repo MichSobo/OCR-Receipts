@@ -423,11 +423,11 @@ def process_content(input_content, do_save=True, output_folderpath=''):
                         do_add_items = pyip.inputYesNo('\nDo you want to add items? ')
                         if do_add_items == 'no':
                             # Check if added items repair the situation
-                            new_items_df = pd.DataFrame([items_df, new_items])
+                            new_items_df = pd.concat([items_df, pd.DataFrame(new_items)])
                             diff = get_total_sum_diff(content, new_items_df)
                             if diff == 0:
                                 print('\nData seems to be correct now')
-                                content['items'].update(new_items)
+                                content['items'].extend(new_items)
                                 if do_save:
                                     write_content(content, output_folderpath)
 
