@@ -349,7 +349,7 @@ def extract_content(input_filepath,
         # Write recognized content to file
         output_filepath = os.path.join(output_folderpath, 'extracted_content.json')
         with open(output_filepath, 'w', encoding='utf-8') as f:
-            json.dump(extracted_content, f, indent=4)
+            json.dump(extracted_content, f, ensure_ascii=False, indent=4)
 
         abspath = os.path.abspath(output_filepath)
         print(f'\nExtracted content was written to file "{abspath}"')

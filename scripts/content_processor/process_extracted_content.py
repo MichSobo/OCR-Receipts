@@ -341,8 +341,8 @@ def write_content(obj, output_folderpath):
 
     """
     output_filepath = os.path.join(output_folderpath, 'processed_content.json')
-    with open(output_folderpath, 'w', encoding='utf-8') as f:
-        json.dump(obj, f, indent=4)
+    with open(output_filepath, 'w', encoding='utf-8') as f:
+        json.dump(obj, f, ensure_ascii=False, indent=4)
 
     abspath = os.path.abspath(output_filepath)
     print(f'\nExtracted content was written to file "{abspath}"')
