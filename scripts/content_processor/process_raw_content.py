@@ -94,7 +94,7 @@ def get_split_text(text):
     return text_split_new
 
 
-def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
+def get_shop_name(text, do_correct=True, value_if_not_recognized=None):
     """Return shop name if found in receipt content.
 
     The function tries to extract shop name by comparing defined shop names with
@@ -109,7 +109,7 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
         do_correct (bool): set whether to ask user for correct values
             (default True)
         value_if_not_recognized (str): value to be returned if shop name not
-            found in text (default False)
+            found in text (default None)
 
     Returns:
         str: recognized shop name, *value_if_not_recognized* otherwise
@@ -203,7 +203,7 @@ def get_item(text, do_correct=True):
         'qty': get_qty(result.group(2)),
         'unit_price': get_price(result.group(4)),
         'total_price': get_price(result.group(5)),
-        'total_discount': None,
+        'total_discount': 0.0,
         'final_price': None
     }
 
@@ -265,7 +265,7 @@ def get_items(text, do_correct=True):
     return items
 
 
-def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
+def get_total_sum(text, do_correct=True, value_if_not_recognized=None):
     """Return total shopping sum.
 
     Arguments:
@@ -273,7 +273,7 @@ def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
         do_correct (bool): set whether to interactively correct invalid values
             (default True)
         value_if_not_recognized (float): value to be returned if shop name is
-            not found in the text (default False)
+            not found in the text (default None)
 
     Returns:
         float: recognized total sum, *value_if_not_recognized* otherwise

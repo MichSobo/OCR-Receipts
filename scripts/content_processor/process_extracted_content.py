@@ -46,7 +46,7 @@ def correct_missing_properties(df, inplace=False):
 
     """
     # Get DataFrame with items missing properties
-    missing_properties_df = df.copy().loc[(df == False).any(axis=1)]
+    missing_properties_df = df.copy().loc[(df.isna()).any(axis=1)]
 
     if len(missing_properties_df) > 0:
         print(f'\nFound items with missing properties...')
@@ -58,7 +58,7 @@ def correct_missing_properties(df, inplace=False):
         print(f'\n{item}')
 
         # Get missing properties
-        missing_properties = item.loc[item == False]
+        missing_properties = item.loc[item.isna()]
 
         # Set missing properties
         for prop, _ in missing_properties.items():
@@ -163,7 +163,7 @@ def correct_wrong_items(df, inplace=False):
         item = wrong_items_df.loc[i]
 
         # Check if it's a discounted item
-        is_discounted = not pd.isna(item['total_discount'])
+        is_discounted = item['total_discount'] != 0
 
         # Get correct values for item's properties
         values = get_new_values(item, is_total_price_correct, props_total_price)
@@ -299,11 +299,11 @@ def get_new_item():
     print(f'total price: {item["total_price"]}')
 
     # Set discount
-    discount = pyip.inputNum('total discount: ')
-    item['total_discount'] = None if discount == 0 else discount
+    discount = float(pyip.inputNum('total discount: '))
+    item['total_discount'] = discount
 
     # Evaluate and set final price
-    if item['discount'] is None:
+    if item['total_discount'] == 0:
         item['final_price'] = item['total_price']
     else:
         item['final_price'] = item['total_price'] - item['total_discount']
@@ -340,12 +340,6 @@ def write_content(obj, output_folderpath):
         output_folderpath (str): path to the output file
 
     """
-    # Convert NaN to None for *total_discount* property
-    for item in obj['items']:
-        if np.isnan(item['total_discount']):
-            item['total_discount'] = None
-
-    # Write recognized content to file
     output_filepath = os.path.join(output_folderpath, 'processed_content.json')
     with open(output_folderpath, 'w', encoding='utf-8') as f:
         json.dump(obj, f, indent=4)
