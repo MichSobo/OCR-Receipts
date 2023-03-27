@@ -93,12 +93,13 @@ class Application:
             for i, filename in enumerate(source_imgs_new, start=1):
                 print(f'{i}. {filename}')
 
-            do_select = pyip.inputYesNo('\nDo you want to select any of the above?')
+            prompt = '\nDo you want to select any of the above? '
+            do_select = pyip.inputYesNo(prompt)
             if do_select == 'yes':
                 if len(source_imgs_new) == 1:
                     img_filename = source_imgs_new[0]
                 else:
-                    selection = pyip.inputInt('Select corresponding number',
+                    selection = pyip.inputInt('Enter corresponding number: ',
                                               min=1,
                                               max=len(source_imgs_new))
                     img_filename = source_imgs_new[selection - 1]
@@ -109,10 +110,12 @@ class Application:
             # Get path to image file
             while True:
                 prompt = '\nEnter path to receipt image or press Enter to skip: '
-                input_img_filepath = os.path.abspath(input(prompt))
+                input_img_filepath = input(prompt)
                 if input_img_filepath == '':
                     # Return to main menu
                     return None
+                else:
+                    input_img_filepath = os.path.abspath(input_img_filepath)
 
                 if os.path.isfile(input_img_filepath):
                     # If file exists, and it's an image, copy it to local folder
@@ -166,11 +169,9 @@ class Application:
         )
         self.content = proc_extracted_content
 
-        do_write_db = pyip.inputYesNo('Do you want to save it to database?')
+        do_write_db = pyip.inputYesNo('Do you want to save it to database? ')
         if do_write_db == 'yes':
             self.save_content(proc_extracted_content)
-
-        print(self.content)
 
     def save_content(self, content):
         """Save content to database."""

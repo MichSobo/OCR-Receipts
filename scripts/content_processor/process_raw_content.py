@@ -339,7 +339,7 @@ def extract_content(input_filepath,
 
     # Set result dictionary
     extracted_content = {
-        'content_filepath': input_filepath,
+        'content_filepath': os.path.abspath(input_filepath),
         'shop_name':        shop_name,
         'items':            items,
         'total_sum':        total_sum

@@ -24,7 +24,7 @@ def read_content(path):
         dict: dictionary with file content
 
     """
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         content = json.load(f)
 
     print(f'Extracted content was read from file "{os.path.abspath(path)}"')
@@ -412,10 +412,10 @@ def process_content(input_content, do_save=True, output_folderpath=''):
 
             # Check if extracted total sum is correct
             print(f'\nExtracted total sum is: {content["total_sum"]}')
-            is_correct = pyip.inputYesNo('Is it correct?\n')
+            is_correct = pyip.inputYesNo('Is it correct? ')
             if is_correct == 'yes':
                 print('\nPlease check if all items were added...')
-                do_add_items = pyip.inputYesNo('\nDo you want to add items?')
+                do_add_items = pyip.inputYesNo('\nDo you want to add items? ')
                 if do_add_items == 'yes':
                     # Add more items
                     new_items = []
@@ -426,7 +426,7 @@ def process_content(input_content, do_save=True, output_folderpath=''):
                         # Add new item to list
                         new_items.append(new_item)
 
-                        do_add_items = pyip.inputYesNo('\nDo you want to add items?')
+                        do_add_items = pyip.inputYesNo('\nDo you want to add items? ')
                         if do_add_items == 'no':
                             # Check if added items repair the situation
                             new_items_df = pd.DataFrame([items_df, new_items])

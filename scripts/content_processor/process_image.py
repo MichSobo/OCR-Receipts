@@ -40,7 +40,7 @@ class Image:
 
         img = cv.imread(path)
 
-        print(f'Image was read from file: "{os.path.abspath(path)}"')
+        print(f'Image was read from file "{os.path.abspath(path)}"')
 
         return cls(img)
 
@@ -248,8 +248,10 @@ class Image:
             output_filepath (str): path to the output file
                 (default raw_content.txt)
         """
-        content = pytesseract.image_to_string(
-            cv.cvtColor(self.img, cv.COLOR_BGR2RGB), config='--psm 4')
+        content = pytesseract.image_to_string(cv.cvtColor(self.img,
+                                                          cv.COLOR_BGR2RGB),
+                                              lang='eng',
+                                              config='--psm 4')
 
         if save is True:
             # Write recognized content to file
