@@ -38,9 +38,6 @@ class Application:
         self.connection = connection
         self.cursor = cursor
 
-        # Initialize content
-        self.content = None
-
     def __repr__(self):
         return f'Application(imgs_folderpath={self.imgs_folderpath}, out_folderpath{self.out_folderpath})'
 
@@ -59,7 +56,9 @@ class Application:
             if option_id == 1:
                 self.extract_content()
             elif option_id == 2:
-                self.save_content()
+                # Get path to file with content
+                content_filepath = pyip.inputFilepath('\nEnter path to content: ')
+                self.save_content(content_filepath)
             elif option_id == 3:
                 self.show_receipts()
             elif option_id == 0:
@@ -171,7 +170,6 @@ class Application:
             extracted_content,
             output_folderpath=output_folderpath
         )
-        self.content = proc_extracted_content
 
         do_write_db = pyip.inputYesNo('Do you want to save it to database? ')
         if do_write_db == 'yes':
@@ -179,7 +177,8 @@ class Application:
 
     def save_content(self, content):
         """Save content to database."""
-        print('Saving image')
+        print('\nSaving content to database')
+        save_content.save_content_in_db(content, self.connection, self.cursor)
 
     def show_receipts(self):
         """Print receipts data stored in database."""
@@ -187,6 +186,9 @@ class Application:
 
     def exit(self):
         """Exit application."""
+        self.cursor.close()
+        self.connection.close()
+
         print('\nClosing application')
 
 
