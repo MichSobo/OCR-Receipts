@@ -102,9 +102,8 @@ def save_content_in_db(content, connection=None, cursor=None):
 
     # Add receipt data to db
     receipt_id = database.add_receipt(cursor,
-                                      image_name='Paragon_2022-08-11_081131_300dpi.jpg',
-                                      shop_name=content['shop_name'],
-                                      total_sum=content['total_sum'])
+                                      image_filename, content['shopping_date'],
+                                      content['shop_name'], content['total_sum'])
 
     # Set valid item names
     print(f'\n{"=" * 20}\nSETTING VALID NAMES\n{"=" * 20}')
@@ -154,10 +153,10 @@ def main():
         os.path.join(os.path.dirname(__file__), '../..'))
 
     content_folderpath = os.path.join(ROOT_FOLDERPATH, 'results',
-                                      'Paragon_2022-08-11_081131_300dpi')
+                                      'Paragon_2023-03-26_231157')
 
     # Read processed extracted content
-    content_filename = 'processed_extracted_content.json'
+    content_filename = 'processed_content.json'
     content_filepath = os.path.join(content_folderpath, content_filename)
 
     save_content_in_db(content_filepath)

@@ -54,8 +54,8 @@ def add_valid_item_name(cursor, name):
 
 
 def add_receipt(cursor,
-                image_name, shop_name, total_sum,
-                processed_date=None, shopping_date=None):
+                image_name, shopping_date, shop_name, total_sum,
+                processed_date=None):
 
     def get_shop_id_by_name(name):
         query = f'SELECT id FROM shop WHERE name = "{name}"'
@@ -66,15 +66,13 @@ def add_receipt(cursor,
 
     query_data = {
         'image_name': f'"{image_name}"',
+        'shopping_date': f'"{shopping_date}"',
         'shop_id': get_shop_id_by_name(shop_name),
         'total_sum': total_sum
     }
 
     if processed_date:
         query_data['processed_date'] = processed_date
-
-    if shopping_date:
-        query_data['shopping_date'] = shopping_date
 
     columns_str = ', '.join(query_data.keys())
     values_str = ', '.join(map(str, query_data.values()))
