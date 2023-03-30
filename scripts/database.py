@@ -37,8 +37,8 @@ def get_item_by_name(cursor, table, name):
     return cursor.fetchall()
 
 
-def add_invalid_item_name(cursor, name, valid_name):
-    query = f'INSERT INTO invalid_item (name, valid_name) VALUES ("{name}", "{valid_name}")'
+def add_invalid_item_name(cursor, name, valid_name, receipt_id):
+    query = f'INSERT INTO invalid_item (name, valid_name, receipt_id) VALUES ("{name}", "{valid_name}", "{receipt_id}")'
     cursor.execute(query)
 
 
