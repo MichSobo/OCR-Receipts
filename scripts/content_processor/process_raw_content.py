@@ -126,7 +126,7 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=None):
             if possible_name in text.lower():
                 return name
 
-    # In case shop name was not recognized
+    # In case shop name not recognized
     if do_correct:
         value = input('\nShop name was not recognized. Enter correct value: ')
         return get_shop_name(value)
@@ -169,6 +169,33 @@ def get_price(string, is_discount=False):
     match = pattern.search(string).groups()
 
     return f'{match[0]}.{match[1]}'
+
+
+def get_shopping_date(text, do_correct=True, value_if_not_recognized=None):
+    """Get shopping date and return it.
+
+    Shopping date will be extracted from text. If it's not found, user will be
+    asked to enter the date if *do_correct* argument True, otherwise the
+    function will return *value_if_not_recognized*.
+
+    Arguments:
+        text (str): text for shopping date extraction,
+        do_correct (bool): set whether to interactively correct invalid values
+            (default True)
+        value_if_not_recognized (object): value to be returned if shopping date
+            not found in text (default None)
+
+    Returns:
+        str: shopping date
+
+    """
+    # In case shopping date not recognized
+    if do_correct:
+        value = input('\nShopping date was not recognized. '
+                      'Enter correct value in format yyyy-mm-dd: ')
+        return value
+    else:
+        return value_if_not_recognized
 
 
 def get_item(text, do_correct=True):
@@ -328,6 +355,9 @@ def extract_content(input_filepath,
     # Replace common wrong characters
     content = replace_invalid_chars(raw_content)
 
+    # Get shopping date
+    shopping_date = get_shopping_date(content, do_correct=do_correct)
+
     # Get shop name
     shop_name = get_shop_name(raw_content, do_correct=do_correct)
 
@@ -339,7 +369,8 @@ def extract_content(input_filepath,
 
     # Set result dictionary
     extracted_content = {
-        'content_filepath': os.path.abspath(input_filepath),
+        'image_filepath':   os.path.abspath(input_filepath),
+        'shopping_date':    shopping_date,
         'shop_name':        shop_name,
         'items':            items,
         'total_sum':        total_sum
