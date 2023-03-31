@@ -181,8 +181,17 @@ class Application:
         save_content.save_content_in_db(content, self.connection, self.cursor)
 
     def show_receipts(self):
-        """Print receipts data stored in database."""
-        print('Showing saved receipts')
+        """Show receipts data stored in database."""
+        print('\nSaved receipts:')
+
+        # Get receipts data from database
+        receipts = database.get_receipts_data(self.cursor)
+
+        # Print receipts
+        print(f'{"id":>5} | {"name":<30}')
+        print('-' * 50)
+        for receipt in receipts:
+            print(f'{receipt["id"]:>5} | {receipt["image_name"]:<30}')
 
     def exit(self):
         """Exit application."""

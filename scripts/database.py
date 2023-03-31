@@ -93,6 +93,15 @@ def get_receipts(cursor):
     return filenames
 
 
+def get_receipts_data(cursor):
+    query = f'SELECT id, image_name FROM receipt'
+    cursor.execute(query)
+
+    result = cursor.fetchall()
+
+    return result
+
+
 def add_item(cursor, receipt_id, name, qty, unit_price, total_discount):
     query_data = {
         'receipt_id': receipt_id,
