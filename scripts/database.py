@@ -34,13 +34,11 @@ def get_item_by_name(cursor, table, name):
     query = f'SELECT * FROM {table} WHERE name = "{name}"'
     cursor.execute(query)
 
-    a = cursor.fetchall()
-
-    return a
+    return cursor.fetchall()
 
 
-def add_invalid_item_name(cursor, name, valid_name):
-    query = f'INSERT INTO invalid_item (name, valid_name) VALUES ("{name}", "{valid_name}")'
+def add_invalid_item_name(cursor, name, valid_name, receipt_id):
+    query = f'INSERT INTO invalid_item (name, valid_name, receipt_id) VALUES ("{name}", "{valid_name}", "{receipt_id}")'
     cursor.execute(query)
 
 
@@ -56,8 +54,8 @@ def add_valid_item_name(cursor, name):
 
 
 def add_receipt(cursor,
-                image_name, shop_name, total_sum,
-                processed_date=None, shopping_date=None):
+                image_name, shopping_date, shop_name, total_sum,
+                processed_date=None):
 
     def get_shop_id_by_name(name):
         query = f'SELECT id FROM shop WHERE name = "{name}"'
@@ -68,15 +66,13 @@ def add_receipt(cursor,
 
     query_data = {
         'image_name': f'"{image_name}"',
+        'shopping_date': f'"{shopping_date}"',
         'shop_id': get_shop_id_by_name(shop_name),
         'total_sum': total_sum
     }
 
     if processed_date:
         query_data['processed_date'] = processed_date
-
-    if shopping_date:
-        query_data['shopping_date'] = shopping_date
 
     columns_str = ', '.join(query_data.keys())
     values_str = ', '.join(map(str, query_data.values()))
@@ -85,6 +81,25 @@ def add_receipt(cursor,
     cursor.execute(query)
 
     return cursor.lastrowid
+
+
+def get_receipts(cursor):
+    query = f'SELECT image_name FROM receipt'
+    cursor.execute(query)
+
+    result = cursor.fetchall()
+    filenames = [row['image_name'] for row in result]
+
+    return filenames
+
+
+def get_receipts_data(cursor):
+    query = f'SELECT id, image_name FROM receipt'
+    cursor.execute(query)
+
+    result = cursor.fetchall()
+
+    return result
 
 
 def add_item(cursor, receipt_id, name, qty, unit_price, total_discount):

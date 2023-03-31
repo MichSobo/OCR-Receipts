@@ -94,7 +94,7 @@ def get_split_text(text):
     return text_split_new
 
 
-def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
+def get_shop_name(text, do_correct=True, value_if_not_recognized=None):
     """Return shop name if found in receipt content.
 
     The function tries to extract shop name by comparing defined shop names with
@@ -109,7 +109,7 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
         do_correct (bool): set whether to ask user for correct values
             (default True)
         value_if_not_recognized (str): value to be returned if shop name not
-            found in text (default False)
+            found in text (default None)
 
     Returns:
         str: recognized shop name, *value_if_not_recognized* otherwise
@@ -126,7 +126,7 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=False):
             if possible_name in text.lower():
                 return name
 
-    # In case shop name was not recognized
+    # In case shop name not recognized
     if do_correct:
         value = input('\nShop name was not recognized. Enter correct value: ')
         return get_shop_name(value)
@@ -171,6 +171,33 @@ def get_price(string, is_discount=False):
     return f'{match[0]}.{match[1]}'
 
 
+def get_shopping_date(text, do_correct=True, value_if_not_recognized=None):
+    """Get shopping date and return it.
+
+    Shopping date will be extracted from text. If it's not found, user will be
+    asked to enter the date if *do_correct* argument True, otherwise the
+    function will return *value_if_not_recognized*.
+
+    Arguments:
+        text (str): text for shopping date extraction,
+        do_correct (bool): set whether to interactively correct invalid values
+            (default True)
+        value_if_not_recognized (object): value to be returned if shopping date
+            not found in text (default None)
+
+    Returns:
+        str: shopping date
+
+    """
+    # In case shopping date not recognized
+    if do_correct:
+        value = input('\nShopping date was not recognized. '
+                      'Enter correct value in format yyyy-mm-dd: ')
+        return value
+    else:
+        return value_if_not_recognized
+
+
 def get_item(text, do_correct=True):
     """Get item properties from text and return it as a dictionary.
 
@@ -203,7 +230,7 @@ def get_item(text, do_correct=True):
         'qty': get_qty(result.group(2)),
         'unit_price': get_price(result.group(4)),
         'total_price': get_price(result.group(5)),
-        'total_discount': None,
+        'total_discount': 0.0,
         'final_price': None
     }
 
@@ -265,7 +292,7 @@ def get_items(text, do_correct=True):
     return items
 
 
-def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
+def get_total_sum(text, do_correct=True, value_if_not_recognized=None):
     """Return total shopping sum.
 
     Arguments:
@@ -273,7 +300,7 @@ def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
         do_correct (bool): set whether to interactively correct invalid values
             (default True)
         value_if_not_recognized (float): value to be returned if shop name is
-            not found in the text (default False)
+            not found in the text (default None)
 
     Returns:
         float: recognized total sum, *value_if_not_recognized* otherwise
@@ -296,9 +323,10 @@ def get_total_sum(text, do_correct=True, value_if_not_recognized=False):
 
 
 def extract_content(input_filepath,
+                    img_content=None,
                     do_correct=True,
                     do_save=True,
-                    output_filepath='extracted_content.json'):
+                    output_folderpath=''):
     """Extract content from raw text and return it as a dictionary.
 
     The extracted content items are put in a dictionary as:
@@ -310,22 +338,25 @@ def extract_content(input_filepath,
 
     Arguments:
         input_filepath (str): path to a text file with recognized image content
+        img_content (str): recognized image content (default None)
         do_correct (bool): set whether to ask user for correct values
             (default True)
         do_save (bool): set whether to save the extracted content to a JSON file
             (default True)
-        output_filepath (str): path to the output file (default
-            extracted_content.txt)
+        output_folderpath (str): path to the output folder (default '')
 
     Return:
         dict: dictionary with extracted content
 
     """
     # Read raw content
-    raw_content = read_raw_content(input_filepath)
+    raw_content = img_content if img_content else read_raw_content(input_filepath)
 
     # Replace common wrong characters
     content = replace_invalid_chars(raw_content)
+
+    # Get shopping date
+    shopping_date = get_shopping_date(content, do_correct=do_correct)
 
     # Get shop name
     shop_name = get_shop_name(raw_content, do_correct=do_correct)
@@ -338,7 +369,8 @@ def extract_content(input_filepath,
 
     # Set result dictionary
     extracted_content = {
-        'content_filepath': input_filepath,
+        'image_filepath':   os.path.abspath(input_filepath),
+        'shopping_date':    shopping_date,
         'shop_name':        shop_name,
         'items':            items,
         'total_sum':        total_sum
@@ -346,8 +378,9 @@ def extract_content(input_filepath,
 
     if do_save is True:
         # Write recognized content to file
+        output_filepath = os.path.join(output_folderpath, 'extracted_content.json')
         with open(output_filepath, 'w', encoding='utf-8') as f:
-            json.dump(extracted_content, f, indent=4)
+            json.dump(extracted_content, f, ensure_ascii=False, indent=4)
 
         abspath = os.path.abspath(output_filepath)
         print(f'\nExtracted content was written to file "{abspath}"')
@@ -369,11 +402,10 @@ def main():
                                     content_folderpath, content_filename)
 
     # Get extracted content
-    output_filename = 'extracted_content.json'
-    output_filepath = os.path.join(ROOT_FOLDERPATH,
-                                   content_folderpath, output_filename)
+    output_folderpath = os.path.join(ROOT_FOLDERPATH, content_folderpath)
 
-    extract_content(content_filepath, output_filepath=output_filepath)
+    extract_content(content_filepath,
+                    output_folderpath=output_folderpath)
 
 
 if __name__ == '__main__':

@@ -40,7 +40,7 @@ class Image:
 
         img = cv.imread(path)
 
-        print(f'Image was read from file: "{os.path.abspath(path)}"')
+        print(f'Image was read from file "{os.path.abspath(path)}"')
 
         return cls(img)
 
@@ -248,8 +248,10 @@ class Image:
             output_filepath (str): path to the output file
                 (default raw_content.txt)
         """
-        content = pytesseract.image_to_string(
-            cv.cvtColor(self.img, cv.COLOR_BGR2RGB), config='--psm 4')
+        content = pytesseract.image_to_string(cv.cvtColor(self.img,
+                                                          cv.COLOR_BGR2RGB),
+                                              lang='eng',
+                                              config='--psm 4')
 
         if save is True:
             # Write recognized content to file
@@ -269,7 +271,7 @@ def get_img_content(img_filepath,
                     save_proc_imgs=False,
                     proc_imgs_folderpath='',
                     write_content=True,
-                    output_filepath=''):
+                    output_folderpath=''):
     """Read and process an image. Return recognized text content.
 
     Arguments:
@@ -285,13 +287,11 @@ def get_img_content(img_filepath,
             images will be saved (default cwd)
         write_content (bool): set whether to write the recognized content
             to a text file (default True)
-        output_filepath (str): path of the file to which the recognized content
-            will be saved (name of the input image file with .txt extension
-            by default)
+        output_folderpath (str): path to the output folder (default '')
 
     Returns:
-        list[str]: list of string elements, where each element corresponds to
-            a single line of recognized content
+        str: string with recognized image content
+
     """
     # Get raw image
     img = Image.from_path(img_filepath)
@@ -309,9 +309,7 @@ def get_img_content(img_filepath,
                            proc_img_folderpath=proc_imgs_folderpath)
 
     # Set output file path
-    if output_filepath == '':
-        filename = os.path.splitext(os.path.basename(img_filepath))[0]
-        output_filepath = filename + '.txt'
+    output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
 
     # Recognize content
     content = img.get_content(write_content, output_filepath)
@@ -341,16 +339,13 @@ def main():
     output_folderpath = os.path.join(OUTPUT_FOLDERPATH, filename)
     os.makedirs(output_folderpath, exist_ok=True)
 
-    # Set output file path
-    output_filepath = os.path.join(output_folderpath, 'raw_content.txt')
-
     # Get content
     raw_content = get_img_content(raw_img_filepath,
                                   prepare_img=False,
                                   binarize_img=True,
                                   save_proc_imgs=True,
                                   proc_imgs_folderpath=proc_imgs_folderpath,
-                                  output_filepath=output_filepath)
+                                  output_folderpath=output_folderpath)
 
     return raw_content
 

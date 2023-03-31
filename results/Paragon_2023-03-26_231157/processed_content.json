@@ -1,0 +1,112 @@
+{
+    "image_filepath": "C:\\Users\\Michal\\Documents\\GitHub\\OCR-Receipts\\images\\receipts\\Paragon_2023-03-26_231157.jpg",
+    "shopping_date": "2023-03-18",
+    "shop_name": "Biedronka",
+    "items": [
+        {
+            "name": "Recznik Hilla",
+            "qty": 1.0,
+            "unit_price": 5.49,
+            "total_price": 5.49,
+            "total_discount": 0.0,
+            "final_price": 5.49
+        },
+        {
+            "name": "Waf leCienkieZiot 105g",
+            "qty": 1.0,
+            "unit_price": 3.32,
+            "total_price": 3.32,
+            "total_discount": 0.0,
+            "final_price": 3.32
+        },
+        {
+            "name": "ButecSniad400g",
+            "qty": 1.0,
+            "unit_price": 9.99,
+            "total_price": 9.99,
+            "total_discount": 0.0,
+            "final_price": 9.99
+        },
+        {
+            "name": "Jog Fruvitalz 400g",
+            "qty": 1.0,
+            "unit_price": 2.49,
+            "total_price": 2.49,
+            "total_discount": 0.0,
+            "final_price": 2.49
+        },
+        {
+            "name": "Suréukidix UF 360g",
+            "qty": 1.0,
+            "unit_price": 2.99,
+            "total_price": 2.99,
+            "total_discount": 0.0,
+            "final_price": 2.99
+        },
+        {
+            "name": "KabanExcllari0é gq",
+            "qty": 1.0,
+            "unit_price": 6.94,
+            "total_price": 6.94,
+            "total_discount": 0.0,
+            "final_price": 6.94
+        },
+        {
+            "name": "BatonVi tanelRauddg",
+            "qty": 2.0,
+            "unit_price": 2.39,
+            "total_price": 4.78,
+            "total_discount": 0.0,
+            "final_price": 4.78
+        },
+        {
+            "name": "Tofulledzonei80q",
+            "qty": 1.0,
+            "unit_price": 4.49,
+            "total_price": 4.49,
+            "total_discount": 0.0,
+            "final_price": 4.49
+        },
+        {
+            "name": "Mozzar light 125g",
+            "qty": 1.0,
+            "unit_price": 2.99,
+            "total_price": 2.99,
+            "total_discount": 0.0,
+            "final_price": 2.99
+        },
+        {
+            "name": "BatPro5@ TrGoadg",
+            "qty": 1.0,
+            "unit_price": 5.99,
+            "total_price": 5.99,
+            "total_discount": 0.0,
+            "final_price": 5.99
+        },
+        {
+            "name": "iabir luz",
+            "qty": 0.035,
+            "unit_price": 27.99,
+            "total_price": 0.98,
+            "total_discount": 0.0,
+            "final_price": 0.98
+        },
+        {
+            "name": "Cytryna luz",
+            "qty": 0.255,
+            "unit_price": 8.99,
+            "total_price": 2.29,
+            "total_discount": 0.76,
+            "final_price": 1.53
+        },
+        {
+            "name": "Bułka Kajzerka 55g",
+            "qty": 2.0,
+            "unit_price": 0.33,
+            "total_price": 0.66,
+            "total_discount": 0.0,
+            "final_price": 0.66
+        }
+    ],
+    "total_sum": 52.64
+}

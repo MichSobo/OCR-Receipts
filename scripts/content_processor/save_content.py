@@ -20,7 +20,7 @@ def read_content(path):
         dict: dictionary with file content
 
     """
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         content = json.load(f)
 
     print(f'Using content from file "{os.path.abspath(path)}"')
@@ -60,7 +60,7 @@ def get_valid_name(cursor, item):
         if user_input != '':
             # Add invalid item name to db
             print(f'Adding invalid name "{item["name"]}" to database')
-            database.add_invalid_item_name(cursor, item['name'], valid_name)
+            database.add_invalid_item_name(cursor, item['name'], valid_name, receipt_id)
 
     return valid_name
 
@@ -81,10 +81,11 @@ def is_unit_price_valid(df):
         return False
 
 
-def save_content_in_db(content):
-    # Connect to database
-    connection, cursor = database.connect(option_files='..\\my.ini',
-                                          database='shopping')
+def save_content_in_db(content, connection=None, cursor=None):
+    if connection is None or cursor is None:
+        # Connect to database
+        connection, cursor = database.connect(option_files='..\\..\\my.ini',
+                                              database='shopping')
 
     # Get content
     if isinstance(content, dict):
@@ -99,11 +100,14 @@ def save_content_in_db(content):
         raise TypeError(
             f'Unsupported argument type passed as content: {type(content)}')
 
+    # Get image name
+    image_filename = os.path.basename(content['image_filepath'])
+
     # Add receipt data to db
+    global receipt_id
     receipt_id = database.add_receipt(cursor,
-                                      image_name='Paragon_2022-08-11_081131_300dpi.jpg',
-                                      shop_name=content['shop_name'],
-                                      total_sum=content['total_sum'])
+                                      image_filename, content['shopping_date'],
+                                      content['shop_name'], content['total_sum'])
 
     # Set valid item names
     print(f'\n{"=" * 20}\nSETTING VALID NAMES\n{"=" * 20}')
@@ -141,8 +145,10 @@ def save_content_in_db(content):
                           total_discount=row['total_discount'])
 
     connection.commit()
-    cursor.close()
-    connection.close()
+
+    if connection is None or cursor is None:
+        cursor.close()
+        connection.close()
 
 
 def main():
@@ -151,10 +157,10 @@ def main():
         os.path.join(os.path.dirname(__file__), '../..'))
 
     content_folderpath = os.path.join(ROOT_FOLDERPATH, 'results',
-                                      'Paragon_2022-08-11_081131_300dpi')
+                                      'Paragon_2023-03-26_231157')
 
     # Read processed extracted content
-    content_filename = 'processed_extracted_content.json'
+    content_filename = 'processed_content.json'
     content_filepath = os.path.join(content_folderpath, content_filename)
 
     save_content_in_db(content_filepath)
