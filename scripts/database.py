@@ -102,6 +102,21 @@ def get_receipts_data(cursor):
     return result
 
 
+def get_items_unit_price_history(cursor):
+    query = f'SELECT name, shopping_date AS date, unit_price ' \
+            f'FROM all_items ' \
+            f'INNER JOIN receipt ON all_items.receipt_id = receipt.id ' \
+            f'WHERE name in (' \
+            f'SELECT name FROM all_items GROUP BY name HAVING count(*) > 1' \
+            f') ' \
+            f'ORDER BY name, date'
+    cursor.execute(query)
+
+    result = cursor.fetchall()
+
+    return result
+
+
 def add_item(cursor, receipt_id, name, qty, unit_price, total_discount):
     query_data = {
         'receipt_id': receipt_id,

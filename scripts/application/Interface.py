@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 Code for defining application interface.
 """
 import os
 import shutil
 
+import pandas as pd
 import pyinputplus as pyip
 
 from scripts import database
@@ -17,6 +19,7 @@ class Application:
         1: 'Extract receipt content',
         2: 'Save content to database',
         3: 'Show saved receipts',
+        4: 'Show price history',
         0: 'Exit'
     }
 
@@ -51,7 +54,7 @@ class Application:
         while True:
             show_menu()
 
-            option_id = pyip.inputInt(min=0, max=3)
+            option_id = pyip.inputInt(min=0, max=len(self.MENU) - 1)
 
             if option_id == 1:
                 self.extract_content()
@@ -61,6 +64,8 @@ class Application:
                 self.save_content(content_filepath)
             elif option_id == 3:
                 self.show_receipts()
+            elif option_id == 4:
+                self.show_price_history()
             elif option_id == 0:
                 self.exit()
                 break
@@ -187,11 +192,43 @@ class Application:
         # Get receipts data from database
         receipts = database.get_receipts_data(self.cursor)
 
-        # Print receipts
+        # Show receipts
         print(f'{"id":>5} | {"name":<30}')
         print('-' * 50)
         for receipt in receipts:
             print(f'{receipt["id"]:>5} | {receipt["image_name"]:<30}')
+
+    def show_price_history(self):
+        """Show items price history."""
+        # Get items from database
+        items = database.get_items_unit_price_history(self.cursor)
+
+        if not items:
+            print('No items with price history available')
+            return None
+
+        # Put items data in DataFrame
+        df = pd.DataFrame(items)
+        df['date'] = pd.to_datetime(df['date'])
+        df['unit_price'] = df['unit_price'].astype('float')
+
+        # Show items with price history
+        print('\nItems with price history available:')
+        for i, item_name in enumerate(df['name'].unique(), start=1):
+            print(f'{i}. {item_name}')
+
+        # Select item
+        selected_item_id = pyip.inputInt('\nSelect item by entering its id: ',
+                                         min=1, max=len(items))
+        selected_item_name = df['name'].unique()[selected_item_id - 1]
+        item = df.loc[df['name'] == selected_item_name]
+
+        print(f'\nPrice history for {item["name"][0]}:')
+        print(f'{"date":<10} | {"price":<6}')
+        print('-' * 20)
+        for _, data in item.iterrows():
+            print(f'{data["date"].strftime(format="%Y.%m.%d"):<10} | {data["unit_price"]:<6}')
+
 
     def exit(self):
         """Exit application."""
