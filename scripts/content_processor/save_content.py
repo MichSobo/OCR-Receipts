@@ -6,6 +6,7 @@ import json
 import os
 
 import pandas as pd
+import pyinputplus as pyip
 
 from scripts import database
 
@@ -75,7 +76,7 @@ def is_unit_price_valid(df):
     if r.all():
         return True
     else:
-        print('Unambiguous unit price was found for items: ', end='')
+        print('\nUnambiguous unit price was found for items:')
         print(', '.join(r.loc[r == False].index.values))
 
         return False
@@ -123,7 +124,10 @@ def save_content_in_db(content, connection=None, cursor=None):
 
     # Check for unambiguous unit price for the same item name
     if not is_unit_price_valid(df):
-        raise ValueError(f'Unambiguous unit prices were found')
+        if pyip.inputYesNo('Continue? ') == 'yes':
+            pass
+        else:
+            raise ValueError(f'Unambiguous unit prices were found')
 
     # Group item data by name to remove duplicates and sum properties
     df_grouped = df.groupby('name',
