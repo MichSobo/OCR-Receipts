@@ -39,7 +39,7 @@ def replace_invalid_chars(text):
     # Define mapper where key-correct -> value-wrong
     mapper = {
         '1': ['(', '{'],
-        'x': ['«', '¥'],
+        'x': ['«', '¥', '#'],
         '-': ['~'],
         'P': ['?']
     }
@@ -162,7 +162,7 @@ def get_price(string, is_discount=False):
         str: price string
 
     """
-    discount_pattern = re.compile(r'OPUST -?(\w+)[,. ]+(\w{,2})')
+    discount_pattern = re.compile(r'OPUST.*(\w+)[,. ]+(\w{,2})')
     price_pattern = re.compile(r'(\w+)[,. ]+(\w{,2})')
 
     pattern = discount_pattern if is_discount else price_pattern
