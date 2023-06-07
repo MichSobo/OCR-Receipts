@@ -5,6 +5,8 @@ import json
 import os
 import re
 
+import pyinputplus as pyip
+
 from scripts.content_processor.misc import string_to_float
 
 
@@ -189,13 +191,34 @@ def get_shopping_date(text, do_correct=True, value_if_not_recognized=None):
         str: shopping date
 
     """
-    # In case shopping date not recognized
-    if do_correct:
-        value = input('\nShopping date was not recognized. '
-                      'Enter correct value in format yyyy-mm-dd: ')
-        return value
+
+    def get_date():
+        while True:
+            date = input('\nEnter correct date in format yyyy-mm-dd: ')
+
+            if pattern.fullmatch(date):
+                return date
+            else:
+                print('Incorrect date format')
+
+    pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
+    match = pattern.search(text)
+
+    if match:
+        date = match.group()
+        print(f'\nRecognized shopping date is: {date}')
+
+        if pyip.inputYesNo('Is it correct? ') == 'yes':
+            return date
+        else:
+            return get_date()
     else:
-        return value_if_not_recognized
+        print('\nShopping date was not recognized')
+
+        if do_correct:
+            return get_date()
+        else:
+            return value_if_not_recognized
 
 
 def get_item(text, do_correct=True):
