@@ -1,5 +1,5 @@
 """
-Code for extracting relevant data from recognized receipt content.
+Code for extracting relevant data from raw recognized receipt content.
 """
 import json
 import os
@@ -10,20 +10,20 @@ import pyinputplus as pyip
 from scripts.content_processor.misc import string_to_float
 
 
-def read_raw_content(path):
+def read_raw_content(filepath):
     """Read a file with raw content and return it as a string.
 
     Arguments:
-        path (str): path to the file with raw content
+        filepath (str): path to the file with raw content
 
     Returns:
         str: file content as a string
 
     """
-    with open(path, encoding='utf-8') as f:
+    with open(filepath, encoding='utf-8') as f:
         raw_content = f.read()
 
-    abspath = os.path.abspath(path)
+    abspath = os.path.abspath(filepath)
     print(f'Raw content was read from file "{abspath}"')
 
     return raw_content
@@ -37,8 +37,9 @@ def replace_invalid_chars(text):
 
     Returns:
         str: text with replaced characters
+
     """
-    # Define mapper where key-correct -> value-wrong
+    # Define mapper which maps correct chars on wrong chars
     mapper = {
         '1': ['(', '{'],
         'x': ['«', '¥', '#'],
@@ -46,7 +47,7 @@ def replace_invalid_chars(text):
         'P': ['?']
     }
 
-    new_text = text
+    new_text = text[:]
 
     for valid, invalid in mapper.items():
         for char in invalid:
@@ -73,7 +74,6 @@ def get_split_text(text):
         list: row-separated text, including discounted products
 
     """
-    # """Return a split text by new lines, considering discount."""
     text_split = text.split('\n')
 
     # Remove empty lines
@@ -108,8 +108,8 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=None):
 
     Arguments:
         text (str): input text
-        do_correct (bool): set whether to ask user for correct values
-            (default True)
+        do_correct (bool): set whether to ask user for correct input (default
+            True)
         value_if_not_recognized (str): value to be returned if shop name not
             found in text (default None)
 
@@ -126,6 +126,8 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=None):
     for name, possible_names in SHOPS.items():
         for possible_name in possible_names:
             if possible_name in text.lower():
+                print(f'\nRecognized shop name is: {name}')
+
                 return name
 
     # In case shop name not recognized
