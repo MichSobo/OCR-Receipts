@@ -151,28 +151,53 @@ def get_qty(string):
         return f'{match[0]}.{match[2]}'
 
 
-def get_price(string, is_discount=False):
+def get_price(string):
     """Return price string in proper format based on another string.
-
-    The function can also process strings that represent discount. For that it
-    uses a different regex pattern.
 
     Arguments:
         string (str): input string
-        is_discount (bool): set whether the string represents a discount
-            (default False)
 
     Returns:
-        str: price string
+        str: price
 
     """
-    discount_pattern = re.compile(r'OPUST.*(\w+)[,. ]+(\w{,2})')
-    price_pattern = re.compile(r'(\w+)[,. ]+(\w{,2})')
+    pattern = re.compile(r'(\w+)[,. ]+(\w{,2})')
+    match = pattern.search(string)
 
-    pattern = discount_pattern if is_discount else price_pattern
-    match = pattern.search(string).groups()
+    return f'{match.group(1)}.{match.group(2)}'
 
-    return f'{match[0]}.{match[1]}'
+
+def get_discount(string, item_name='', do_correct=True,
+                 value_if_not_recognized='0.0'):
+    """Return discount string in proper format based on another string.
+
+    Arguments:
+        string (str): input string
+        item_name (str): item name (default '')
+        do_correct (bool): set whether to ask user for correct discount input
+            (default True)
+        value_if_not_recognized (str): value to be returned if discount not
+            recognized properly
+
+    Returns:
+        str: price
+
+    """
+    pattern = re.compile(r'OPUST .*(\d+)[,. ]+(\d{,2})')
+    match = pattern.search(string)
+
+    if match:
+        return f'{match.group(1)}.{match.group(2)}'
+    else:
+        print(f'\nDiscount was not recognized for item {item_name}')
+
+        if do_correct:
+            if pyip.inputYesNo('Is it a discounted item? ') == 'yes':
+                return input('Enter discount: ')
+            else:
+                return '0.0'
+        else:
+            return value_if_not_recognized
 
 
 def get_shopping_date(text, do_correct=True, value_if_not_recognized=None):
@@ -304,12 +329,15 @@ def get_items(text, do_correct=True):
         if len(line) > 1:
             # Modify discount and final price properties
             discount_line, final_price_line = line[1], line[2]
-            discount = get_price(discount_line, is_discount=True)
-            final_price = get_price(final_price_line)
+            discount = get_discount(discount_line, item_name=item['name'])
 
-            # Update properties
-            item['total_discount'] = string_to_float(discount, item_line, do_correct)
-            item['final_price'] = string_to_float(final_price, item_line, do_correct)
+            if discount != '0.0':
+                # Get final price
+                final_price = get_price(final_price_line)
+
+                # Update properties
+                item['total_discount'] = string_to_float(discount, item_line, do_correct)
+                item['final_price'] = string_to_float(final_price, item_line, do_correct)
 
         # Add item to list of items
         items.append(item)
