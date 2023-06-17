@@ -132,8 +132,11 @@ def get_shop_name(text, do_correct=True, value_if_not_recognized=None):
 
     # In case shop name not recognized
     if do_correct:
-        value = input('\nShop name was not recognized. Enter correct value: ')
-        return get_shop_name(value)
+        while True:
+            value = input('\nShop name was not recognized. Enter correct value: ')
+
+            if value in SHOPS:
+                return value
     else:
         return value_if_not_recognized
 
